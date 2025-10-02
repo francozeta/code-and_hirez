@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
 import { JobCard } from "@/components/job-card"
 import { JobFilters } from "@/components/job-filters"
-import { SiteHeader } from "@/components/site-header"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { Job } from "@/types/db"
@@ -74,7 +73,6 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SiteHeader />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-16 md:py-20">

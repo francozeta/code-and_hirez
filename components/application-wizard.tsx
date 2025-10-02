@@ -4,26 +4,36 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText } from "lucide-react"
+import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Progress } from "@/components/ui/progress"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { applicationSchema, type ApplicationFormData } from "@/lib/validations/application"
 import { submitApplication } from "@/app/actions/submit-application"
 
 interface ApplicationWizardProps {
   jobId: string
+  isMobile?: boolean
 }
 
 type Step = 1 | 2 | 3
 
-export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
+export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fileName, setFileName] = useState<string>("")
+  const [open, setOpen] = useState(false)
 
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
@@ -52,6 +62,7 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
       const result = await submitApplication(formData)
 
       if (result.success) {
+        setOpen(false)
         router.push("/thanks")
       } else {
         alert(result.error || "Error al enviar la postulación")
@@ -85,54 +96,58 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
     }
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Progress */}
+  const WizardContent = () => (
+    <div className="space-y-4 md:space-y-6">
       <div className="space-y-2">
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>Paso {currentStep} de 3</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <Progress value={progress} className="h-2" />
+        <Progress value={progress} className="h-1.5 md:h-2" />
       </div>
 
-      {/* Step Indicators */}
-      <div className="flex justify-between">
-        <div className={`flex items-center gap-2 ${currentStep >= 1 ? "text-primary" : "text-muted-foreground"}`}>
+      <div className="flex justify-between px-2">
+        <div
+          className={`flex flex-col items-center gap-1.5 ${currentStep >= 1 ? "text-primary" : "text-muted-foreground"}`}
+        >
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep >= 1 ? "border-primary bg-primary/10" : "border-muted"}`}
+            className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= 1 ? "border-primary bg-primary/10" : "border-muted"}`}
           >
-            <User className="h-4 w-4" />
+            <User className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </div>
-          <span className="text-xs font-medium hidden sm:inline">Info</span>
+          <span className="text-[10px] md:text-xs font-medium">Info</span>
         </div>
-        <div className={`flex items-center gap-2 ${currentStep >= 2 ? "text-primary" : "text-muted-foreground"}`}>
+        <div
+          className={`flex flex-col items-center gap-1.5 ${currentStep >= 2 ? "text-primary" : "text-muted-foreground"}`}
+        >
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep >= 2 ? "border-primary bg-primary/10" : "border-muted"}`}
+            className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= 2 ? "border-primary bg-primary/10" : "border-muted"}`}
           >
-            <Mail className="h-4 w-4" />
+            <Mail className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </div>
-          <span className="text-xs font-medium hidden sm:inline">Contacto</span>
+          <span className="text-[10px] md:text-xs font-medium">Contacto</span>
         </div>
-        <div className={`flex items-center gap-2 ${currentStep >= 3 ? "text-primary" : "text-muted-foreground"}`}>
+        <div
+          className={`flex flex-col items-center gap-1.5 ${currentStep >= 3 ? "text-primary" : "text-muted-foreground"}`}
+        >
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${currentStep >= 3 ? "border-primary bg-primary/10" : "border-muted"}`}
+            className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= 3 ? "border-primary bg-primary/10" : "border-muted"}`}
           >
-            <FileText className="h-4 w-4" />
+            <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </div>
-          <span className="text-xs font-medium hidden sm:inline">CV</span>
+          <span className="text-[10px] md:text-xs font-medium">CV</span>
         </div>
       </div>
 
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
           {/* Step 1: Basic Info */}
           {currentStep === 1 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Información básica</h3>
-                <p className="text-sm text-muted-foreground">Cuéntanos quién eres</p>
+            <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base md:text-lg">Información básica</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">Cuéntanos quién eres</p>
               </div>
 
               <FormField
@@ -140,11 +155,11 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                 name="full_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre completo *</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">Nombre completo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Juan Pérez" {...field} />
+                      <Input placeholder="Juan Pérez" className="text-sm md:text-base h-9 md:h-10" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -154,11 +169,16 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="juan@ejemplo.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="juan@ejemplo.com"
+                        className="text-sm md:text-base h-9 md:h-10"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -167,10 +187,10 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
 
           {/* Step 2: Contact Info */}
           {currentStep === 2 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Información de contacto</h3>
-                <p className="text-sm text-muted-foreground">¿Cómo podemos contactarte?</p>
+            <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base md:text-lg">Información de contacto</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">¿Cómo podemos contactarte?</p>
               </div>
 
               <FormField
@@ -178,11 +198,16 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Teléfono</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">Teléfono</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="+51 999 999 999" {...field} />
+                      <Input
+                        type="tel"
+                        placeholder="+51 999 999 999"
+                        className="text-sm md:text-base h-9 md:h-10"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -192,11 +217,16 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                 name="linkedin_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>LinkedIn</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">LinkedIn</FormLabel>
                     <FormControl>
-                      <Input type="url" placeholder="https://linkedin.com/in/tu-perfil" {...field} />
+                      <Input
+                        type="url"
+                        placeholder="linkedin.com/in/tu-perfil"
+                        className="text-sm md:text-base h-9 md:h-10"
+                        {...field}
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -205,10 +235,10 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
 
           {/* Step 3: CV Upload */}
           {currentStep === 3 && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Sube tu CV</h3>
-                <p className="text-sm text-muted-foreground">Formato PDF o DOCX, máximo 5MB</p>
+            <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base md:text-lg">Sube tu CV</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">PDF o DOCX, máx. 5MB</p>
               </div>
 
               <FormField
@@ -216,19 +246,19 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                 name="cv"
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
-                    <FormLabel>CV (PDF o DOCX) *</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">CV (PDF o DOCX) *</FormLabel>
                     <FormControl>
-                      <div className="space-y-3">
+                      <div className="space-y-2 md:space-y-3">
                         <Label
                           htmlFor="cv-upload"
-                          className="flex flex-col items-center justify-center gap-3 h-40 border-2 border-dashed border-input rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
+                          className="flex flex-col items-center justify-center gap-2 md:gap-3 h-32 md:h-40 border-2 border-dashed border-input rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
                         >
-                          <Upload className="h-8 w-8 text-muted-foreground" />
-                          <div className="text-center">
-                            <span className="text-sm font-medium text-foreground">
-                              {fileName || "Haz clic para subir tu CV"}
+                          <Upload className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground" />
+                          <div className="text-center px-4">
+                            <span className="text-xs md:text-sm font-medium text-foreground block">
+                              {fileName || "Toca para subir tu CV"}
                             </span>
-                            <p className="text-xs text-muted-foreground mt-1">PDF o DOCX, máx. 5MB</p>
+                            <p className="text-[10px] md:text-xs text-muted-foreground mt-1">PDF o DOCX, máx. 5MB</p>
                           </div>
                         </Label>
                         <Input
@@ -246,43 +276,50 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
                           {...field}
                         />
                         {fileName && (
-                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-                            <FileText className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium flex-1">{fileName}</span>
+                          <div className="flex items-center gap-2 p-2 md:p-3 bg-muted rounded-lg">
+                            <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary shrink-0" />
+                            <span className="text-xs md:text-sm font-medium flex-1 truncate">{fileName}</span>
                           </div>
                         )}
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 md:gap-3 pt-2 md:pt-4">
             {currentStep > 1 && (
-              <Button type="button" variant="outline" onClick={prevStep} className="flex-1 bg-transparent">
-                <ChevronLeft className="mr-2 h-4 w-4" />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevStep}
+                className="flex-1 h-9 md:h-10 text-xs md:text-sm bg-transparent"
+              >
+                <ChevronLeft className="mr-1 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                 Anterior
               </Button>
             )}
 
             {currentStep < 3 ? (
-              <Button type="button" onClick={nextStep} className="flex-1">
+              <Button type="button" onClick={nextStep} className="flex-1 h-9 md:h-10 text-xs md:text-sm">
                 Siguiente
-                <ChevronRight className="ml-2 h-4 w-4" />
+                <ChevronRight className="ml-1 md:ml-2 h-3.5 w-3.5 md:h-4 md:w-4" />
               </Button>
             ) : (
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              <Button type="submit" className="flex-1 h-9 md:h-10 text-xs md:text-sm" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
                     Enviando...
                   </>
                 ) : (
-                  "Enviar postulación"
+                  <>
+                    <Send className="mr-1 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                    Enviar
+                  </>
                 )}
               </Button>
             )}
@@ -291,4 +328,26 @@ export function ApplicationWizard({ jobId }: ApplicationWizardProps) {
       </Form>
     </div>
   )
+
+  if (isMobile) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button size="lg" className="w-full h-12 text-base rounded-full sticky bottom-4 shadow-lg">
+            <Send className="mr-2 h-5 w-5" />
+            Postular a esta vacante
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-xl">Postular a esta vacante</DialogTitle>
+            <DialogDescription className="text-sm">Completa el proceso en 3 pasos</DialogDescription>
+          </DialogHeader>
+          <WizardContent />
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  return <WizardContent />
 }

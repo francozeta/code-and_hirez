@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Geist, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { SiteHeader } from "@/components/site-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +30,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${playfair.variable} antialiased`}
+        className={`${geistSans.className} ${playfair.variable} antialiased`}
       >
-        <Suspense fallback={null}>{children}</Suspense>
+        <SiteHeader />
+        {children}
         <Analytics />
       </body>
     </html>
