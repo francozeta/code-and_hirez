@@ -6,22 +6,21 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Mobile optimized */}
-      <section className="relative py-12 md:py-20 lg:py-32 overflow-hidden">
+      <section className="relative min-h-[60vh] md:min-h-[70vh] lg:min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-secondary/30" />
 
-        <div className="container relative mx-auto px-4">
+        <div className="container relative mx-auto px-4 py-12 md:py-20">
           <div className="max-w-4xl mx-auto text-center space-y-6 md:space-y-8">
             <div className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-foreground/10 text-foreground border border-foreground/20 text-xs md:text-sm font-medium mb-2 md:mb-4">
               <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4" />
               <span>Tu próxima oportunidad está aquí</span>
             </div>
 
-            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-balance leading-tight">
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-balance leading-tight">
               Encuentra el trabajo que <span className="text-primary">amas</span>
             </h1>
 
-            <p className="text-sm md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
               Conectamos talento excepcional con empresas innovadoras. Un proceso de reclutamiento más humano,
               transparente y efectivo.
             </p>
@@ -134,10 +133,10 @@ export default function HomePage() {
               >
                 <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
               </svg>
-              <span className="font-serif text-base md:text-lg font-semibold">Code&Hirez</span>
+              <span className="font-serif text-base md:text-lg font-semibold">Code&Hire</span>
             </div>
             <p className="text-xs md:text-sm text-muted-foreground text-center">
-              © 2025 Code&Hirez. Conectando talento con oportunidades.
+              © 2025 Code&Hire. Conectando talento con oportunidades.
             </p>
           </div>
         </div>

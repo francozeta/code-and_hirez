@@ -49,7 +49,7 @@ export default function JobsPage() {
     fetchJobs()
   }, [])
 
-  const handleFilterChange = (filters: { search: string; location: string; workModality: string }) => {
+  const handleFilterChange = (filters: { search: string; location: string; modality: string }) => {
     let filtered = jobs
 
     if (filters.search) {
@@ -64,8 +64,8 @@ export default function JobsPage() {
       filtered = filtered.filter((job) => job.location.toLowerCase().includes(filters.location.toLowerCase()))
     }
 
-    if (filters.workModality && filters.workModality !== "all") {
-      filtered = filtered.filter((job) => job.work_modality === filters.workModality)
+    if (filters.modality && filters.modality !== "all") {
+      filtered = filtered.filter((job) => job.work_modality === filters.modality)
     }
 
     setFilteredJobs(filtered)
@@ -73,7 +73,6 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-16 md:py-20">
         <div className="container mx-auto px-4">
@@ -93,7 +92,7 @@ export default function JobsPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Filters */}
-            <div className="bg-card border rounded-xl p-6 shadow-sm">
+            <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm">
               <JobFilters onFilterChange={handleFilterChange} />
             </div>
 
