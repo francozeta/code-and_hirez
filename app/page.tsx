@@ -1,103 +1,141 @@
-import Image from "next/image";
+import Link from "next/link"
+import { ArrowRight, Briefcase, Heart, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { SiteHeader } from "@/components/site-header"
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen">
+      <SiteHeader />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section - Elegant and inviting */}
+      <section className="relative py-20 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-secondary/30" />
+
+        <div className="container relative mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/10 text-foreground border border-foreground/20 text-sm font-medium mb-4">
+              <Sparkles className="h-4 w-4" />
+              <span>Tu próxima oportunidad está aquí</span>
+            </div>
+
+            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance leading-tight">
+              Encuentra el trabajo que <span className="text-primary">amas</span>
+            </h1>
+
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
+              Conectamos talento excepcional con empresas innovadoras. Un proceso de reclutamiento más humano,
+              transparente y efectivo.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Button asChild size="lg" className="rounded-full text-base h-12 px-8">
+                <Link href="/jobs">
+                  Explorar vacantes
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full text-base h-12 px-8 bg-transparent">
+                <Link href="/jobs">Ver todas las oportunidades</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+
+      {/* Features - Clean and elegant */}
+      <section className="py-20 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center space-y-4 mb-16">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold text-balance">Un proceso pensado para ti</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
+                Creemos en un reclutamiento más humano, donde cada candidato es valorado
+              </p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-3">
+              <Card className="border-2 hover:border-accent/50 transition-colors">
+                <CardHeader className="space-y-4">
+                  <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center">
+                    <Heart className="h-7 w-7 text-accent" />
+                  </div>
+                  <CardTitle className="font-serif text-2xl">Proceso cercano</CardTitle>
+                  <CardDescription className="text-base leading-relaxed">
+                    Cada postulación es revisada personalmente. No eres solo un número en nuestro sistema.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-2 hover:border-primary/50 transition-colors">
+                <CardHeader className="space-y-4">
+                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                    <Briefcase className="h-7 w-7 text-primary" />
+                  </div>
+                  <CardTitle className="font-serif text-2xl">Vacantes verificadas</CardTitle>
+                  <CardDescription className="text-base leading-relaxed">
+                    Solo publicamos oportunidades reales de empresas comprometidas con su equipo.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-2 hover:border-accent/50 transition-colors">
+                <CardHeader className="space-y-4">
+                  <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center">
+                    <Sparkles className="h-7 w-7 text-accent" />
+                  </div>
+                  <CardTitle className="font-serif text-2xl">Respuesta rápida</CardTitle>
+                  <CardDescription className="text-base leading-relaxed">
+                    Te mantenemos informado en cada etapa. Valoramos tu tiempo tanto como el nuestro.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section - Warm and inviting */}
+      <section className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-8">
+            <h2 className="font-serif text-4xl md:text-5xl font-bold text-balance leading-tight">
+              Comienza tu búsqueda hoy
+            </h2>
+            <p className="text-lg text-muted-foreground text-pretty leading-relaxed">
+              Cientos de oportunidades te esperan. Da el siguiente paso en tu carrera con confianza.
+            </p>
+            <Button asChild size="lg" className="rounded-full text-base h-12 px-8">
+              <Link href="/jobs">
+                Ver todas las vacantes
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border/40 py-12 bg-secondary/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-3">
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 76 65"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label="Vercel Logo"
+              >
+                <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
+              </svg>
+              <span className="font-serif text-lg font-semibold">Code&Hirez</span>
+            </div>
+            <p className="text-sm text-muted-foreground">© 2025 Code&Hirez. Conectando talento con oportunidades.</p>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }

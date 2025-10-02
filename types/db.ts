@@ -1,57 +1,159 @@
-// Database types for Code and Hirez
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
-export type JobStatus = "Borrador" | "Abierta" | "Cerrada"
-export type WorkModality = "Presencial" | "Remoto" | "Híbrido"
-export type ContractType = "Tiempo Completo" | "Medio Tiempo" | "Por Proyecto" | "Freelance"
-export type ApplicationStatus = "Nueva" | "Preselección" | "Entrevista" | "Contratado" | "Rechazado"
-
-export interface Job {
-  id: string
-  slug: string
-  title: string
-  company: string
-  description: string
-  requirements: string
-  location: string
-  work_modality: WorkModality
-  contract_type: ContractType
-  salary_range?: string
-  status: JobStatus
-  max_openings: number
-  openings_filled: number
-  expires_at?: string
-  created_at: string
-  updated_at: string
+export interface Database {
+  public: {
+    Tables: {
+      admin_users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string
+          role: "admin" | "recruiter"
+          created_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          full_name: string
+          role?: "admin" | "recruiter"
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string
+          role?: "admin" | "recruiter"
+          created_at?: string
+        }
+      }
+      jobs: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          company: string
+          description: string
+          requirements: string
+          location: string
+          work_modality: "Presencial" | "Remoto" | "Híbrido"
+          contract_type: "Tiempo Completo" | "Medio Tiempo" | "Por Proyecto" | "Freelance"
+          salary_range: string | null
+          status: "Borrador" | "Abierta" | "Cerrada"
+          max_openings: number
+          openings_filled: number
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          company: string
+          description: string
+          requirements: string
+          location: string
+          work_modality: "Presencial" | "Remoto" | "Híbrido"
+          contract_type: "Tiempo Completo" | "Medio Tiempo" | "Por Proyecto" | "Freelance"
+          salary_range?: string | null
+          status?: "Borrador" | "Abierta" | "Cerrada"
+          max_openings?: number
+          openings_filled?: number
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          company?: string
+          description?: string
+          requirements?: string
+          location?: string
+          work_modality?: "Presencial" | "Remoto" | "Híbrido"
+          contract_type?: "Tiempo Completo" | "Medio Tiempo" | "Por Proyecto" | "Freelance"
+          salary_range?: string | null
+          status?: "Borrador" | "Abierta" | "Cerrada"
+          max_openings?: number
+          openings_filled?: number
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      applications: {
+        Row: {
+          id: string
+          job_id: string
+          full_name: string
+          email: string
+          phone: string | null
+          linkedin_url: string | null
+          cv_url: string
+          cv_filename: string
+          status: "Nueva" | "Preselección" | "Entrevista" | "Contratado" | "Rechazado"
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          job_id: string
+          full_name: string
+          email: string
+          phone?: string | null
+          linkedin_url?: string | null
+          cv_url: string
+          cv_filename: string
+          status?: "Nueva" | "Preselección" | "Entrevista" | "Contratado" | "Rechazado"
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          job_id?: string
+          full_name?: string
+          email?: string
+          phone?: string | null
+          linkedin_url?: string | null
+          cv_url?: string
+          cv_filename?: string
+          status?: "Nueva" | "Preselección" | "Entrevista" | "Contratado" | "Rechazado"
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+  }
 }
 
-export interface Application {
-  id: string
-  job_id: string
-  full_name: string
-  email: string
-  phone?: string
-  linkedin_url?: string
-  cv_url: string
-  cv_filename: string
-  status: ApplicationStatus
-  notes?: string
-  created_at: string
-  updated_at: string
-}
+// Helper types derived from Database
+export type Job = Database["public"]["Tables"]["jobs"]["Row"]
+export type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"]
+export type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"]
 
-export interface AdminUser {
-  id: string
-  email: string
-  full_name: string
-  role: "admin" | "recruiter"
-  created_at: string
-}
+export type Application = Database["public"]["Tables"]["applications"]["Row"]
+export type ApplicationInsert = Database["public"]["Tables"]["applications"]["Insert"]
+export type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"]
 
-// Database insert types (without auto-generated fields)
-export type JobInsert = Omit<Job, "id" | "created_at" | "updated_at" | "openings_filled">
-export type ApplicationInsert = Omit<Application, "id" | "created_at" | "updated_at">
-export type AdminUserInsert = Omit<AdminUser, "id" | "created_at">
+export type AdminUser = Database["public"]["Tables"]["admin_users"]["Row"]
+export type AdminUserInsert = Database["public"]["Tables"]["admin_users"]["Insert"]
+export type AdminUserUpdate = Database["public"]["Tables"]["admin_users"]["Update"]
 
-// Database update types (all fields optional except id)
-export type JobUpdate = Partial<Omit<Job, "id" | "created_at">>
-export type ApplicationUpdate = Partial<Omit<Application, "id" | "created_at">>
+// Type aliases for enums
+export type JobStatus = Database["public"]["Tables"]["jobs"]["Row"]["status"]
+export type WorkModality = Database["public"]["Tables"]["jobs"]["Row"]["work_modality"]
+export type ContractType = Database["public"]["Tables"]["jobs"]["Row"]["contract_type"]
+export type ApplicationStatus = Database["public"]["Tables"]["applications"]["Row"]["status"]
