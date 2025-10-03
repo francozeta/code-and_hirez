@@ -133,10 +133,10 @@ export default function HomePage() {
               >
                 <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
               </svg>
-              <span className="font-serif text-base md:text-lg font-semibold">Code&Hire</span>
+              <span className="font-serif text-base md:text-lg font-semibold">Code&Hirez</span>
             </div>
             <p className="text-xs md:text-sm text-muted-foreground text-center">
-              © 2025 Code&Hire. Conectando talento con oportunidades.
+              © 2025 Code&Hirez. Conectando talento con oportunidades.
             </p>
           </div>
         </div>

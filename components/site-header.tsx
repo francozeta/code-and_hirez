@@ -4,7 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ArrowLeft, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Drawer, DrawerContent, DrawerTrigger, DrawerClose } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerTrigger, DrawerClose, DrawerTitle } from "@/components/ui/drawer"
+import { VisuallyHidden } from "@/components/ui/visually-hidden"
 import { useState } from "react"
 
 export function SiteHeader() {
@@ -41,7 +42,7 @@ export function SiteHeader() {
           >
             <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
           </svg>
-          <span className="font-serif text-lg md:text-xl font-semibold tracking-tight">Code&Hire</span>
+          <span className="font-serif text-lg md:text-xl font-semibold tracking-tight">Code&Hirez</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
@@ -67,6 +68,10 @@ export function SiteHeader() {
             </Button>
           </DrawerTrigger>
           <DrawerContent className="px-4 pb-8">
+            <VisuallyHidden>
+              <DrawerTitle>Menú de navegación</DrawerTitle>
+            </VisuallyHidden>
+
             <div className="flex flex-col gap-6 mt-6">
               <DrawerClose asChild>
                 <Link

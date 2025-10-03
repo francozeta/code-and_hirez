@@ -73,8 +73,7 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-16 md:py-20">
+      <section className="bg-background py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
