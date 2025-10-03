@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Search } from "lucide-react"
 import { JobCard } from "@/components/job-card"
 import { JobFilters } from "@/components/job-filters"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -40,6 +39,7 @@ export default function JobsPage() {
       if (error) {
         console.error("[v0] Error fetching jobs:", error)
       } else {
+        console.log("[v0] Fetched jobs:", data)
         setJobs(data || [])
         setFilteredJobs(data || [])
       }
@@ -65,7 +65,7 @@ export default function JobsPage() {
     }
 
     if (filters.modality && filters.modality !== "all") {
-      filtered = filtered.filter((job) => job.work_modality === filters.modality)
+      filtered = filtered.filter((job) => job.modality === filters.modality)
     }
 
     setFilteredJobs(filtered)
@@ -74,7 +74,7 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-background">
       <section className="bg-background py-16 md:py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-1 md:px-2">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
               Descubre tu próxima oportunidad
@@ -88,22 +88,12 @@ export default function JobsPage() {
 
       {/* Filters and Jobs */}
       <section className="py-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-1 md:px-2">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Filters */}
-            <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm">
+            <div className="bg-card border rounded-xl p-3 md:p-4 shadow-sm">
               <JobFilters onFilterChange={handleFilterChange} />
             </div>
-
-            {/* Results Count */}
-            {!isLoading && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Search className="h-5 w-5" />
-                <p className="text-sm">
-                  {filteredJobs.length} {filteredJobs.length === 1 ? "vacante encontrada" : "vacantes encontradas"}
-                </p>
-              </div>
-            )}
 
             {/* Jobs Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -35,8 +35,8 @@ export default async function JobPage({ params }: JobPageProps) {
   return (
     <div className="min-h-screen bg-background">
       <section className="bg-background py-8 md:py-12 lg:py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
+        <div className="container mx-auto px-2">
+          <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
             <div className="space-y-2 md:space-y-3">
               <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-balance leading-tight">
                 {job.title}
@@ -48,84 +48,87 @@ export default async function JobPage({ params }: JobPageProps) {
 
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline" className="gap-1.5 text-xs md:text-sm px-3 py-1.5">
-                <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                {job.location}
+                <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                <span>{job.location}</span>
               </Badge>
               <Badge variant="outline" className="gap-1.5 text-xs md:text-sm px-3 py-1.5">
-                <Briefcase className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                {job.work_modality}
+                <Briefcase className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                <span>{job.modality}</span>
               </Badge>
               <Badge variant="outline" className="gap-1.5 text-xs md:text-sm px-3 py-1.5">
-                <Clock className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                {job.contract_type}
+                <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                <span>{job.contract_type}</span>
               </Badge>
               {openingsLeft > 0 && (
                 <Badge variant="outline" className="gap-1.5 text-xs md:text-sm px-3 py-1.5">
-                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                  {openingsLeft} {openingsLeft === 1 ? "vacante" : "vacantes"}
+                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                  <span>
+                    {openingsLeft} {openingsLeft === 1 ? "vacante" : "vacantes"}
+                  </span>
                 </Badge>
               )}
             </div>
 
-            {job.salary_range && (
-              <p className="text-sm md:text-base lg:text-lg font-semibold text-foreground">{job.salary_range}</p>
+            {job.salary_min && job.salary_max && (
+              <p className="text-sm md:text-base lg:text-lg font-semibold text-foreground">
+                ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
+              </p>
             )}
           </div>
         </div>
       </section>
 
       <section className="py-8 md:py-12">
-  <div className="container mx-auto px-4">
-    <div className="max-w-7xl mx-auto">
-      {/* Desktop layout: content left, wizard below */}
-      <div className="grid lg:grid-cols-1 gap-6 lg:gap-8 xl:gap-10">
-        {/* Job Details - Left column */}
-        <div className="space-y-6">
-          <Card className="border-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-xl md:text-2xl">Descripción del puesto</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
-                {job.description}
-              </p>
-            </CardContent>
-          </Card>
+        <div className="container mx-auto px-2">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-8 xl:gap-10">
+              {/* Job Details - Left column */}
+              <div className="space-y-6">
+                <Card className="border-2">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="font-serif text-xl md:text-2xl">Descripción del puesto</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
+                      {job.description}
+                    </p>
+                  </CardContent>
+                </Card>
 
-          <Card className="border-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-xl md:text-2xl">Requisitos</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
-                {job.requirements}
-              </p>
-            </CardContent>
-          </Card>
+                <Card className="border-2">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="font-serif text-xl md:text-2xl">Requisitos</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
+                      {job.requirements}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="hidden lg:block">
+                <div className="sticky top-6">
+                  <Card className="border-2 shadow-lg">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="font-serif text-xl">Postular a esta vacante</CardTitle>
+                      <CardDescription className="text-sm">Completa el proceso en 3 simples pasos</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <ApplicationWizard jobId={job.id} />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Wizard - Modal with floating button */}
+            <div className="lg:hidden mt-6">
+              <ApplicationWizard jobId={job.id} isMobile />
+            </div>
+          </div>
         </div>
-
-        {/* Desktop Wizard - Below content */}
-        <div className="hidden lg:block">
-          <Card className="border-2 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-serif text-xl">Postular a esta vacante</CardTitle>
-              <CardDescription className="text-sm">Completa el proceso en 3 pasos</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <ApplicationWizard jobId={job.id} />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Mobile Wizard - Modal with floating button */}
-      <div className="lg:hidden mt-6">
-        <ApplicationWizard jobId={job.id} isMobile />
-      </div>
-    </div>
-  </div>
-</section>
-            
+      </section>
     </div>
   )
 }

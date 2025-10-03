@@ -17,7 +17,7 @@ export function JobCard({ job }: JobCardProps) {
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-xl group-hover:text-accent transition-colors text-balance">
+              <CardTitle className="text-xl font-serif group-hover:text-accent transition-colors text-balance">
                 {job.title}
               </CardTitle>
               <CardDescription className="text-base mt-1">{job.company}</CardDescription>
@@ -33,21 +33,25 @@ export function JobCard({ job }: JobCardProps) {
           <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{job.description}</p>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="gap-1.5">
-              <MapPin className="h-3 w-3" />
-              {job.location}
+            <Badge variant="outline" className="gap-1.5 text-xs px-2.5 py-1">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{job.location}</span>
             </Badge>
-            <Badge variant="outline" className="gap-1.5">
-              <Briefcase className="h-3 w-3" />
-              {job.work_modality}
+            <Badge variant="outline" className="gap-1.5 text-xs px-2.5 py-1">
+              <Briefcase className="h-3.5 w-3.5 shrink-0" />
+              <span className="whitespace-nowrap">{job.modality || "No especificado"}</span>
             </Badge>
-            <Badge variant="outline" className="gap-1.5">
-              <Clock className="h-3 w-3" />
-              {job.contract_type}
+            <Badge variant="outline" className="gap-1.5 text-xs px-2.5 py-1">
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              <span className="whitespace-nowrap">{job.contract_type}</span>
             </Badge>
           </div>
 
-          {job.salary_range && <p className="text-sm font-medium text-foreground">{job.salary_range}</p>}
+          {job.salary_min && job.salary_max && (
+            <p className="text-sm font-medium text-foreground">
+              ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
+            </p>
+          )}
         </CardContent>
       </Card>
     </Link>

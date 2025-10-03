@@ -61,12 +61,18 @@ export function ApplicationForm({ jobId }: ApplicationFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <p className="text-xs text-muted-foreground">
+          Los campos marcados con <span className="text-destructive">*</span> son obligatorios
+        </p>
+
         <FormField
           control={form.control}
           name="full_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre completo *</FormLabel>
+              <FormLabel>
+                Nombre completo <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Juan Pérez" {...field} />
               </FormControl>
@@ -80,7 +86,9 @@ export function ApplicationForm({ jobId }: ApplicationFormProps) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email *</FormLabel>
+              <FormLabel>
+                Email <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input type="email" placeholder="juan@ejemplo.com" {...field} />
               </FormControl>
@@ -94,7 +102,7 @@ export function ApplicationForm({ jobId }: ApplicationFormProps) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Teléfono</FormLabel>
+              <FormLabel>Teléfono (opcional)</FormLabel>
               <FormControl>
                 <Input type="tel" placeholder="+51 999 999 999" {...field} />
               </FormControl>
@@ -108,7 +116,7 @@ export function ApplicationForm({ jobId }: ApplicationFormProps) {
           name="linkedin_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>LinkedIn</FormLabel>
+              <FormLabel>LinkedIn (opcional)</FormLabel>
               <FormControl>
                 <Input type="url" placeholder="https://linkedin.com/in/tu-perfil" {...field} />
               </FormControl>
@@ -122,7 +130,9 @@ export function ApplicationForm({ jobId }: ApplicationFormProps) {
           name="cv"
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
-              <FormLabel>CV (PDF o DOCX) *</FormLabel>
+              <FormLabel>
+                CV (PDF o DOCX) <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <div className="space-y-2">
                   <Label
