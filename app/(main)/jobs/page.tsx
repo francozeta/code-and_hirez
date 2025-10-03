@@ -37,9 +37,9 @@ export default function JobsPage() {
         .order("created_at", { ascending: false })
 
       if (error) {
-        console.error("[v0] Error fetching jobs:", error)
+        console.error("Error fetching jobs:", error)
       } else {
-        console.log("[v0] Fetched jobs:", data)
+        console.log("Fetched jobs:", data)
         setJobs(data || [])
         setFilteredJobs(data || [])
       }
@@ -74,7 +74,7 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-background">
       <section className="bg-background py-16 md:py-20">
-        <div className="container mx-auto px-1 md:px-2">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
               Descubre tu próxima oportunidad
@@ -88,7 +88,7 @@ export default function JobsPage() {
 
       {/* Filters and Jobs */}
       <section className="py-12">
-        <div className="container mx-auto px-1 md:px-2">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Filters */}
             <div className="bg-card border rounded-xl p-3 md:p-4 shadow-sm">

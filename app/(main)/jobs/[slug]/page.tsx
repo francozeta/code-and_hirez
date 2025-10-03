@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { Briefcase, MapPin, Clock, Users } from "lucide-react"
+import { Briefcase, MapPin, Clock, Users, DollarSign } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ApplicationWizard } from "@/components/application-wizard"
@@ -35,7 +35,7 @@ export default async function JobPage({ params }: JobPageProps) {
   return (
     <div className="min-h-screen bg-background">
       <section className="bg-background py-8 md:py-12 lg:py-16">
-        <div className="container mx-auto px-2">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
             <div className="space-y-2 md:space-y-3">
               <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-balance leading-tight">
@@ -70,16 +70,19 @@ export default async function JobPage({ params }: JobPageProps) {
             </div>
 
             {job.salary_min && job.salary_max && (
-              <p className="text-sm md:text-base lg:text-lg font-semibold text-foreground">
-                ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
-              </p>
+              <Badge className="gap-1.5 text-xs md:text-sm px-3 py-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
+                <DollarSign className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                <span className="font-semibold">
+                  ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
+                </span>
+              </Badge>
             )}
           </div>
         </div>
       </section>
 
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-2">
+        <div className="container mx-auto px-6 md:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-8 xl:gap-10">
               {/* Job Details - Left column */}

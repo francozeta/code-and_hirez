@@ -68,7 +68,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
         alert(result.error || "Error al enviar la postulación")
       }
     } catch (error) {
-      console.error("[v0] Error submitting application:", error)
+      console.error("Error submitting application:", error)
       alert("Error al enviar la postulación. Por favor intenta nuevamente.")
     } finally {
       setIsSubmitting(false)

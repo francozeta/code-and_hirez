@@ -48,9 +48,15 @@ export function JobCard({ job }: JobCardProps) {
           </div>
 
           {job.salary_min && job.salary_max && (
-            <p className="text-sm font-medium text-foreground">
-              ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
-            </p>
+            <Badge
+              variant="outline"
+              className="gap-1.5 text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-800"
+            >
+              <span className="whitespace-nowrap">
+                ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}{" "}
+                por mes
+              </span>
+            </Badge>
           )}
         </CardContent>
       </Card>
