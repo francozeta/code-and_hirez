@@ -1,7 +1,9 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { ApplicationInsert } from "@/types/db"
+import type { Database } from "@/types/db"
+
+type ApplicationInsert = Database["public"]["Tables"]["applications"]["Insert"]
 
 export async function submitApplication(data: {
   full_name: string
@@ -26,7 +28,7 @@ export async function submitApplication(data: {
       status: "Nueva",
     }
 
-    const { error: insertError } = await supabase.from("applications").insert(applicationData)
+    const { error: insertError } = await supabase.from("applications").insert(applicationData as any)
 
     if (insertError) {
       console.error("Error inserting application:", insertError)

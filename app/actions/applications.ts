@@ -2,7 +2,9 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { ApplicationUpdate } from "@/types/db"
+import type { Database } from "@/types/db"
+
+type ApplicationUpdate = Database["public"]["Tables"]["applications"]["Update"]
 
 export async function updateApplicationStatus(applicationId: string, status: string) {
   try {
@@ -25,7 +27,10 @@ export async function updateApplicationStatus(applicationId: string, status: str
       updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
+    const { error } = await supabase
+      .from("applications")
+      .update(updateData as any)
+      .eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application status:", error)
@@ -58,7 +63,10 @@ export async function updateApplicationNotes(applicationId: string, notes: strin
       updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
+    const { error } = await supabase
+      .from("applications")
+      .update(updateData as any)
+      .eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application notes:", error)
@@ -91,7 +99,10 @@ export async function updateApplicationRating(applicationId: string, rating: num
       updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
+    const { error } = await supabase
+      .from("applications")
+      .update(updateData as any)
+      .eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application rating:", error)

@@ -2,7 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { JobInsert, JobUpdate } from "@/types/db"
+import type { Database } from "@/types/db"
+
+type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"]
+type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"]
 
 function generateSlug(title: string): string {
   return title
@@ -45,7 +48,7 @@ export async function createJob(formData: FormData) {
     published_at: formData.get("status") === "Abierta" ? new Date().toISOString() : null,
   }
 
-  const { error } = await supabase.from("jobs").insert(jobData)
+  const { error } = await supabase.from("jobs").insert(jobData as any)
 
   if (error) {
     console.error("Error creating job:", error)
@@ -101,7 +104,10 @@ export async function updateJob(jobId: string, formData: FormData) {
     jobData.closed_at = new Date().toISOString()
   }
 
-  const { error } = await supabase.from("jobs").update(jobData).eq("id", jobId)
+  const { error } = await supabase
+    .from("jobs")
+    .update(jobData as any)
+    .eq("id", jobId)
 
   if (error) {
     console.error("Error updating job:", error)
@@ -128,7 +134,10 @@ export async function deleteJob(jobId: string) {
     deleted_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase.from("jobs").update(updateData).eq("id", jobId)
+  const { error } = await supabase
+    .from("jobs")
+    .update(updateData as any)
+    .eq("id", jobId)
 
   if (error) {
     console.error("Error deleting job:", error)
