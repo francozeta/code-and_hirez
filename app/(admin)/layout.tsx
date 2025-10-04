@@ -1,5 +1,5 @@
 import type React from "react"
-import '../globals.css'
+import "../globals.css"
 import type { Metadata } from "next"
 import { Geist, Playfair_Display } from "next/font/google"
 import { AdminHeader } from "@/components/admin/admin-header"
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "Panel de administración de vacantes y postulaciones",
 }
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -29,7 +29,7 @@ export default function AdminLayout({
     <html lang="es">
       <body className={`${geistSans.className} ${playfair.variable} antialiased`}>
         <AdminHeader />
-        <main className="min-h-screen bg-secondary/30">{children}</main>
+        <main className="min-h-screen bg-secondary/30 pt-20 px-4 md:px-6 lg:px-8">{children}</main>
       </body>
     </html>
   )

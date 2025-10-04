@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { JobInsert } from "@/types/db"
+import type { JobInsert, JobUpdate } from "@/types/db"
 
 function generateSlug(title: string): string {
   return title
@@ -31,8 +31,8 @@ export async function createJob(formData: FormData) {
     title,
     company: formData.get("company") as string,
     location: formData.get("location") as string,
-    modality: formData.get("modality") as any,
-    contract_type: formData.get("contract_type") as any,
+    modality: formData.get("modality") as "Presencial" | "Remoto" | "Híbrido",
+    contract_type: formData.get("contract_type") as "Tiempo completo" | "Medio tiempo" | "Freelance" | "Contrato",
     description: formData.get("description") as string,
     requirements: (formData.get("requirements") as string) || null,
     benefits: (formData.get("benefits") as string) || null,
@@ -40,7 +40,7 @@ export async function createJob(formData: FormData) {
     salary_max: formData.get("salary_max") ? Number(formData.get("salary_max")) : null,
     salary_currency: (formData.get("salary_currency") as string) || "USD",
     max_openings: Number(formData.get("max_openings")) || 1,
-    status: (formData.get("status") as any) || "Borrador",
+    status: (formData.get("status") as "Borrador" | "Abierta" | "Cerrada") || "Borrador",
     created_by: user.id,
     published_at: formData.get("status") === "Abierta" ? new Date().toISOString() : null,
   }
@@ -73,13 +73,13 @@ export async function updateJob(jobId: string, formData: FormData) {
   // Get current job to check if status changed
   const { data: currentJob } = await supabase.from("jobs").select("status, published_at").eq("id", jobId).single()
 
-  const jobData: any = {
+  const jobData: JobUpdate = {
     slug,
     title,
     company: formData.get("company") as string,
     location: formData.get("location") as string,
-    modality: formData.get("modality") as any,
-    contract_type: formData.get("contract_type") as any,
+    modality: formData.get("modality") as "Presencial" | "Remoto" | "Híbrido",
+    contract_type: formData.get("contract_type") as "Tiempo completo" | "Medio tiempo" | "Freelance" | "Contrato",
     description: formData.get("description") as string,
     requirements: (formData.get("requirements") as string) || null,
     benefits: (formData.get("benefits") as string) || null,
