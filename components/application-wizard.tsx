@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/drawer"
 import { applicationSchema, type ApplicationFormData } from "@/lib/validations/application"
 import { submitApplication } from "@/app/actions/submit-application"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
 interface ApplicationWizardProps {
@@ -70,27 +71,59 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
   const progress = (currentStep / 3) * 100
 
   const onSubmit = async (data: ApplicationFormData) => {
+    if (!data.cv) {
+      toast.error("Por favor selecciona un archivo CV")
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
-      const formData = new FormData()
+      const supabase = getSupabaseBrowserClient()
+
+      const fileExt = data.cv.name.split(".").pop()
+      const fileName = `${crypto.randomUUID()}.${fileExt}`
+      const filePath = `applications/${jobId}/${fileName}`
+
+      console.log("Uploading CV from client:", { filePath, fileSize: data.cv.size, fileType: data.cv.type })
+
+      const { error: uploadError } = await supabase.storage.from("cvs").upload(filePath, data.cv, {
+        contentType: data.cv.type,
+        upsert: false,
+      })
+
+      if (uploadError) {
+        console.error("Error uploading CV:", uploadError)
+        toast.error("Error al subir el CV")
+        setIsSubmitting(false)
+        return
+      }
+
+      console.log("CV uploaded successfully from client")
+
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("cvs").getPublicUrl(filePath)
+
       const selectedCountryData = countryCodes.find((c) => c.code === selectedCountry)
       const dialCode = selectedCountryData?.dialCode || "+51"
-
-      formData.append("jobId", jobId)
-      formData.append("full_name", data.full_name)
-      formData.append("email", data.email)
-      formData.append("phone", data.phone ? `${dialCode} ${data.phone}` : "")
 
       const linkedinUrl = data.linkedin_url
         ? data.linkedin_url.startsWith("http")
           ? data.linkedin_url
           : `https://${data.linkedin_url}`
         : ""
-      formData.append("linkedin_url", linkedinUrl)
-      formData.append("cv", data.cv)
 
-      const result = await submitApplication(formData)
+      const result = await submitApplication({
+        job_id: jobId,
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone ? `${dialCode} ${data.phone}` : "",
+        linkedin_url: linkedinUrl,
+        cv_url: publicUrl,
+        cv_filename: data.cv.name,
+      })
 
       if (result.success) {
         setOpen(false)
@@ -238,7 +271,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                             {countryCodes.map((country) => (
                               <SelectItem key={country.code} value={country.code}>
                                 <span className="flex items-center gap-2">
-                                  <Flag code={country.code} className="w-5 h-4 object-cover rounded-sm" />
+                                  <Flag code={country.code} className="w-5 h-4 object-cover rounded-[2px]" />
                                   <span className="text-sm">{country.dialCode}</span>
                                 </span>
                               </SelectItem>
@@ -302,12 +335,13 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                           type="file"
                           accept=".pdf,.doc,.docx"
                           className="sr-only"
-                          required
                           onChange={(e) => {
                             const file = e.target.files?.[0]
+                            console.log("[v0] File selected:", file?.name, "Type:", file?.type, "Size:", file?.size)
                             if (file) {
                               onChange(file)
                               setFileName(file.name)
+                              console.log("[v0] File set in form:", file.name)
                             }
                           }}
                           {...field}

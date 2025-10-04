@@ -3,7 +3,8 @@ import { z } from "zod"
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+  "application/msword", // .doc
 ]
 
 export const applicationSchema = z.object({
@@ -13,8 +14,14 @@ export const applicationSchema = z.object({
   linkedin_url: z.string().url("URL de LinkedIn inválida").optional().or(z.literal("")),
   cv: z
     .instanceof(File)
+    .refine((file) => file.size > 0, "Debes seleccionar un archivo")
     .refine((file) => file.size <= MAX_FILE_SIZE, "El archivo debe ser menor a 5MB")
-    .refine((file) => ACCEPTED_FILE_TYPES.includes(file.type), "Solo se aceptan archivos PDF o DOCX"),
+    .refine((file) => {
+      const isValidType = ACCEPTED_FILE_TYPES.includes(file.type)
+      const fileExt = file.name.split(".").pop()?.toLowerCase()
+      const isValidExt = fileExt && ["pdf", "doc", "docx"].includes(fileExt)
+      return isValidType || isValidExt
+    }, "Solo se aceptan archivos PDF, DOC o DOCX"),
 })
 
 export type ApplicationFormData = z.infer<typeof applicationSchema>

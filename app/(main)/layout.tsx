@@ -5,6 +5,7 @@ import { Geist, Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader } from "@/components/site-header";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
       >
         <SiteHeader />
         {children}
+        <Toaster position="bottom-right" />
         <Analytics />
       </body>
     </html>
