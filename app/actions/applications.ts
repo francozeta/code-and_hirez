@@ -2,6 +2,7 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import type { ApplicationUpdate } from "@/types/db"
 
 export async function updateApplicationStatus(applicationId: string, status: string) {
   try {
@@ -17,15 +18,14 @@ export async function updateApplicationStatus(applicationId: string, status: str
       return { success: false, error: "No autenticado" }
     }
 
-    const { error } = await supabase
-      .from("applications")
-      .update({
-        status,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user.id,
-        updated_at: new Date().toISOString(),
-      } as any)
-      .eq("id", applicationId)
+    const updateData: ApplicationUpdate = {
+      status: status as "Nueva" | "Revisada" | "Contratado" | "Rechazado",
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: user.id,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application status:", error)
@@ -53,13 +53,12 @@ export async function updateApplicationNotes(applicationId: string, notes: strin
       return { success: false, error: "No autenticado" }
     }
 
-    const { error } = await supabase
-      .from("applications")
-      .update({
-        notes,
-        updated_at: new Date().toISOString(),
-      } as any)
-      .eq("id", applicationId)
+    const updateData: ApplicationUpdate = {
+      notes,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application notes:", error)
@@ -87,13 +86,12 @@ export async function updateApplicationRating(applicationId: string, rating: num
       return { success: false, error: "No autenticado" }
     }
 
-    const { error } = await supabase
-      .from("applications")
-      .update({
-        rating,
-        updated_at: new Date().toISOString(),
-      } as any)
-      .eq("id", applicationId)
+    const updateData: ApplicationUpdate = {
+      rating,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase.from("applications").update(updateData).eq("id", applicationId)
 
     if (error) {
       console.error("Error updating application rating:", error)

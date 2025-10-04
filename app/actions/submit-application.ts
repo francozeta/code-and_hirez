@@ -19,7 +19,7 @@ export async function submitApplication(data: {
       job_id: data.job_id,
       full_name: data.full_name,
       email: data.email,
-      phone: data.phone || null,
+      phone: data.phone || "",
       linkedin_url: data.linkedin_url || null,
       cv_url: data.cv_url,
       cv_filename: data.cv_filename,
@@ -29,14 +29,14 @@ export async function submitApplication(data: {
     const { error: insertError } = await supabase.from("applications").insert(applicationData)
 
     if (insertError) {
-      console.error(" Error inserting application:", insertError)
+      console.error("Error inserting application:", insertError)
       return { success: false, error: "Error al guardar la postulación" }
     }
 
-    console.log(" Application submitted successfully")
+    console.log("Application submitted successfully")
     return { success: true }
   } catch (error) {
-    console.error(" Error in submitApplication:", error)
+    console.error("Error in submitApplication:", error)
     return { success: false, error: "Error al procesar la postulación" }
   }
 }

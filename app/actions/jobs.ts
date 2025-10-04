@@ -68,7 +68,7 @@ export async function updateJob(jobId: string, formData: FormData) {
 
   const title = formData.get("title") as string
   const slug = generateSlug(title)
-  const status = formData.get("status") as any
+  const status = formData.get("status") as "Borrador" | "Abierta" | "Cerrada"
 
   // Get current job to check if status changed
   const { data: currentJob } = await supabase.from("jobs").select("status, published_at").eq("id", jobId).single()
@@ -124,8 +124,11 @@ export async function deleteJob(jobId: string) {
     throw new Error("No autenticado")
   }
 
-  // Soft delete
-  const { error } = await supabase.from("jobs").update({ deleted_at: new Date().toISOString() }).eq("id", jobId)
+  const updateData: JobUpdate = {
+    deleted_at: new Date().toISOString(),
+  }
+
+  const { error } = await supabase.from("jobs").update(updateData).eq("id", jobId)
 
   if (error) {
     console.error("Error deleting job:", error)

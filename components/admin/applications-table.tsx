@@ -4,7 +4,7 @@ import type { Application } from "@/types/db"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Eye, Mail, Phone, Linkedin, Star } from "lucide-react"
+import { Eye, Mail, Linkedin, Star, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
@@ -36,6 +36,11 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
         <p className="text-muted-foreground">No hay postulaciones aún</p>
       </div>
     )
+  }
+
+  const getWhatsAppNumber = (phone: string) => {
+    // Remove all non-numeric characters
+    return phone.replace(/\D/g, "")
   }
 
   return (
@@ -72,8 +77,14 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
               <TableCell>
                 <div className="flex gap-2">
                   {app.phone && (
-                    <a href={`tel:${app.phone}`} className="text-muted-foreground hover:text-foreground">
-                      <Phone className="w-4 h-4" />
+                    <a
+                      href={`https://wa.me/${getWhatsAppNumber(app.phone)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-green-600 transition-colors"
+                      title="Contactar por WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
                     </a>
                   )}
                   <a href={`mailto:${app.email}`} className="text-muted-foreground hover:text-foreground">

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Mail, Phone, Linkedin, MapPin, Briefcase, Download, Star, FileText, Building2 } from "lucide-react"
+import { Mail, Linkedin, MapPin, Briefcase, Download, Star, FileText, Building2, MessageCircle } from "lucide-react"
 import { formatDistanceToNow, format } from "date-fns"
 import { es } from "date-fns/locale"
 import { updateApplicationStatus, updateApplicationNotes, updateApplicationRating } from "@/app/actions/applications"
@@ -72,6 +72,36 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
     }
   }
 
+  const getWhatsAppNumber = (phone: string) => {
+    return phone.replace(/\D/g, "")
+  }
+
+  const handleDownloadCV = async () => {
+    try {
+      // Extract the file path from the URL
+      const url = new URL(application.cv_url)
+      const pathParts = url.pathname.split("/storage/v1/object/public/cvs/")
+      const filePath = pathParts[1] || url.pathname.split("/cvs/")[1]
+
+      if (!filePath) {
+        toast.error("No se pudo obtener la ruta del archivo")
+        return
+      }
+
+      // Create a download link
+      const link = document.createElement("a")
+      link.href = application.cv_url
+      link.download = application.cv_filename
+      link.target = "_blank"
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (error) {
+      console.error("Error downloading CV:", error)
+      toast.error("Error al descargar el CV")
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -112,10 +142,15 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
 
               {application.phone && (
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-muted-foreground" />
+                  <MessageCircle className="w-5 h-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Teléfono</p>
-                    <a href={`tel:${application.phone}`} className="font-medium hover:underline">
+                    <p className="text-sm text-muted-foreground">WhatsApp</p>
+                    <a
+                      href={`https://wa.me/${getWhatsAppNumber(application.phone)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium hover:underline text-green-600"
+                    >
                       {application.phone}
                     </a>
                   </div>
@@ -184,11 +219,9 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
                     </p>
                   </div>
                 </div>
-                <Button asChild>
-                  <a href={application.cv_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="w-4 h-4 mr-2" />
-                    Descargar
-                  </a>
+                <Button onClick={handleDownloadCV}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Descargar
                 </Button>
               </div>
             </CardContent>
