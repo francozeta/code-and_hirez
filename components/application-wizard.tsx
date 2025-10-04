@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText, Send } from "lucide-react"
+import Flag from "react-world-flags"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Progress } from "@/components/ui/progress"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Drawer,
   DrawerContent,
@@ -20,6 +22,7 @@ import {
 } from "@/components/ui/drawer"
 import { applicationSchema, type ApplicationFormData } from "@/lib/validations/application"
 import { submitApplication } from "@/app/actions/submit-application"
+import { toast } from "sonner"
 
 interface ApplicationWizardProps {
   jobId: string
@@ -28,12 +31,31 @@ interface ApplicationWizardProps {
 
 type Step = 1 | 2 | 3
 
+const countryCodes = [
+  { code: "US", dialCode: "+1", name: "Estados Unidos" },
+  { code: "CA", dialCode: "+1", name: "Canadá" },
+  { code: "MX", dialCode: "+52", name: "México" },
+  { code: "PE", dialCode: "+51", name: "Perú" },
+  { code: "AR", dialCode: "+54", name: "Argentina" },
+  { code: "CL", dialCode: "+56", name: "Chile" },
+  { code: "CO", dialCode: "+57", name: "Colombia" },
+  { code: "VE", dialCode: "+58", name: "Venezuela" },
+  { code: "ES", dialCode: "+34", name: "España" },
+  { code: "GB", dialCode: "+44", name: "Reino Unido" },
+  { code: "BR", dialCode: "+55", name: "Brasil" },
+  { code: "EC", dialCode: "+593", name: "Ecuador" },
+  { code: "BO", dialCode: "+591", name: "Bolivia" },
+  { code: "PY", dialCode: "+595", name: "Paraguay" },
+  { code: "UY", dialCode: "+598", name: "Uruguay" },
+]
+
 export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fileName, setFileName] = useState<string>("")
   const [open, setOpen] = useState(false)
+  const [selectedCountry, setSelectedCountry] = useState("PE")
 
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
@@ -52,24 +74,34 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
 
     try {
       const formData = new FormData()
+      const selectedCountryData = countryCodes.find((c) => c.code === selectedCountry)
+      const dialCode = selectedCountryData?.dialCode || "+51"
+
       formData.append("jobId", jobId)
       formData.append("full_name", data.full_name)
       formData.append("email", data.email)
-      formData.append("phone", data.phone || "")
-      formData.append("linkedin_url", data.linkedin_url || "")
+      formData.append("phone", data.phone ? `${dialCode} ${data.phone}` : "")
+
+      const linkedinUrl = data.linkedin_url
+        ? data.linkedin_url.startsWith("http")
+          ? data.linkedin_url
+          : `https://${data.linkedin_url}`
+        : ""
+      formData.append("linkedin_url", linkedinUrl)
       formData.append("cv", data.cv)
 
       const result = await submitApplication(formData)
 
       if (result.success) {
         setOpen(false)
+        toast.success("¡Postulación enviada exitosamente!")
         router.push("/thanks")
       } else {
-        alert(result.error || "Error al enviar la postulación")
+        toast.error(result.error || "Error al enviar la postulación")
       }
     } catch (error) {
       console.error("Error submitting application:", error)
-      alert("Error al enviar la postulación. Por favor intenta nuevamente.")
+      toast.error("Error al enviar la postulación. Por favor intenta nuevamente.")
     } finally {
       setIsSubmitting(false)
     }
@@ -157,9 +189,9 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                 name="full_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm">Nombre completo *</FormLabel>
+                    <FormLabel className="text-sm">Nombre completo</FormLabel>
                     <FormControl>
-                      <Input placeholder="Juan Pérez" className="h-10" {...field} />
+                      <Input placeholder="Juan Pérez" className="h-10" required {...field} />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
@@ -171,9 +203,9 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm">Email *</FormLabel>
+                    <FormLabel className="text-sm">Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="juan@ejemplo.com" className="h-10" {...field} />
+                      <Input type="email" placeholder="juan@ejemplo.com" className="h-10" required {...field} />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
@@ -197,7 +229,24 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                   <FormItem>
                     <FormLabel className="text-sm">Teléfono</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="+51 999 999 999" className="h-10" {...field} />
+                      <div className="flex gap-2">
+                        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                          <SelectTrigger className="w-[140px] h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countryCodes.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                <span className="flex items-center gap-2">
+                                  <Flag code={country.code} className="w-5 h-4 object-cover rounded-sm" />
+                                  <span className="text-sm">{country.dialCode}</span>
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input type="tel" placeholder="999 999 999" className="h-10 flex-1" required {...field} />
+                      </div>
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
@@ -211,7 +260,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                   <FormItem>
                     <FormLabel className="text-sm">LinkedIn</FormLabel>
                     <FormControl>
-                      <Input type="url" placeholder="linkedin.com/in/tu-perfil" className="h-10" {...field} />
+                      <Input type="text" placeholder="linkedin.com/in/tu-perfil" className="h-10" required {...field} />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
@@ -233,7 +282,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                 name="cv"
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
-                    <FormLabel className="text-sm">CV (PDF o DOCX) *</FormLabel>
+                    <FormLabel className="text-sm">CV (PDF o DOCX)</FormLabel>
                     <FormControl>
                       <div className="space-y-3">
                         <Label
@@ -253,6 +302,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
                           type="file"
                           accept=".pdf,.doc,.docx"
                           className="sr-only"
+                          required
                           onChange={(e) => {
                             const file = e.target.files?.[0]
                             if (file) {
