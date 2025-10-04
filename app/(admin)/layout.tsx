@@ -3,6 +3,7 @@ import "../globals.css"
 import type { Metadata } from "next"
 import { Geist, Playfair_Display } from "next/font/google"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default async function AdminLayout({
       <body className={`${geistSans.className} ${playfair.variable} antialiased`}>
         <AdminHeader />
         <main className="min-h-screen bg-secondary/30 pt-20 px-4 md:px-6 lg:px-8">{children}</main>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   )

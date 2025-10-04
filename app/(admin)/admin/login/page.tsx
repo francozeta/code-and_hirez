@@ -1,4 +1,6 @@
 import { LoginForm } from "@/components/admin/login-form"
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -6,7 +8,16 @@ export const metadata: Metadata = {
   description: "Panel de administración",
 }
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user) {
+    redirect("/admin/jobs")
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-cream-50 to-green-50/30 px-4">
       <LoginForm />
