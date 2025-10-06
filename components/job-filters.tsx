@@ -22,17 +22,12 @@ export function JobFilters({ onFilterChange }: JobFiltersProps) {
     async function fetchLocations() {
       const supabase = getSupabaseBrowserClient()
 
-      const { data, error } = await supabase
-        .from("locations")
-        .select(
-          `
-          id,
-          name,
-          jobs!inner(id, status, deleted_at)
-        `,
-        )
-        .eq("jobs.status", "Abierta")
-        .is("jobs.deleted_at", null)
+      const { data: jobs, error } = await supabase
+        .from("jobs")
+        .select("location_id, locations(id, name)")
+        .eq("status", "Abierta")
+        .is("deleted_at", null)
+        .not("location_id", "is", null)
 
       if (error) {
         console.error("Error fetching locations:", error)
@@ -40,11 +35,12 @@ export function JobFilters({ onFilterChange }: JobFiltersProps) {
       }
 
       // Remove duplicates
-      const uniqueLocations = data?.reduce((acc: Array<{ id: string; name: string }>, curr: any) => {
-        if (!acc.find((loc) => loc.id === curr.id)) {
+      const uniqueLocations = jobs?.reduce((acc: Array<{ id: string; name: string }>, curr: any) => {
+        const location = curr.locations
+        if (location && !acc.find((loc) => loc.id === location.id)) {
           acc.push({
-            id: curr.id,
-            name: curr.name,
+            id: location.id,
+            name: location.name,
           })
         }
         return acc

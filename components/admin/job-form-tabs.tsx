@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -12,9 +12,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
-import { Briefcase, FileText, DollarSign, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react"
-import type { Job } from "@/types/db"
+import {
+  Briefcase,
+  FileText,
+  DollarSign,
+  CheckCircle2,
+  ArrowRight,
+  ArrowLeft,
+  HelpCircle,
+  Trash2,
+  Plus,
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
+  Type,
+  AlignLeft,
+  Hash,
+  CheckSquare,
+} from "lucide-react"
+import type { Job, Question } from "@/types/db"
 import { createJob, updateJob } from "@/app/actions/jobs"
+import { getAllLocations } from "@/app/actions/locations"
+import { LocationCombobox } from "@/components/admin/location-combobox"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface JobFormTabsProps {
   job?: Job
@@ -41,6 +61,19 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [activeTab, setActiveTab] = useState("basic")
+  const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([])
+
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    if (!job?.questions) return []
+    try {
+      // If questions is already an array, use it directly
+      if (Array.isArray(job.questions)) return job.questions
+      // Otherwise try to parse it
+      return JSON.parse(JSON.stringify(job.questions))
+    } catch {
+      return []
+    }
+  })
 
   const [formState, setFormState] = useState<FormState>({
     title: job?.title || "",
@@ -58,8 +91,46 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
     status: job?.status || "Borrador",
   })
 
+  useEffect(() => {
+    async function fetchLocations() {
+      const locs = await getAllLocations()
+      setLocations(locs)
+    }
+    fetchLocations()
+  }, [])
+
   const updateField = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const addQuestion = () => {
+    if (questions.length >= 5) {
+      toast.error("Máximo 5 preguntas permitidas")
+      return
+    }
+    const newQuestion: Question = {
+      id: crypto.randomUUID(),
+      label: "",
+      type: "short_text",
+      required: false,
+    }
+    setQuestions([...questions, newQuestion])
+  }
+
+  const updateQuestion = (id: string, field: keyof Question, value: any) => {
+    setQuestions(questions.map((q) => (q.id === id ? { ...q, [field]: value } : q)))
+  }
+
+  const removeQuestion = (id: string) => {
+    setQuestions(questions.filter((q) => q.id !== id))
+  }
+
+  const moveQuestion = (index: number, direction: "up" | "down") => {
+    const newQuestions = [...questions]
+    const targetIndex = direction === "up" ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= newQuestions.length) return
+    ;[newQuestions[index], newQuestions[targetIndex]] = [newQuestions[targetIndex], newQuestions[index]]
+    setQuestions(newQuestions)
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -71,6 +142,10 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
     Object.entries(formState).forEach(([key, value]) => {
       if (value) formData.append(key, value)
     })
+
+    if (questions.length > 0) {
+      formData.append("questions", JSON.stringify(questions))
+    }
 
     try {
       if (job) {
@@ -94,7 +169,7 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-muted/50">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
           <TabsTrigger value="basic" className="flex items-center gap-2 py-3 data-[state=active]:bg-background">
             <Briefcase className="h-4 w-4" />
             <span className="hidden sm:inline">Información</span>
@@ -102,6 +177,10 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
           <TabsTrigger value="description" className="flex items-center gap-2 py-3 data-[state=active]:bg-background">
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Descripción</span>
+          </TabsTrigger>
+          <TabsTrigger value="questions" className="flex items-center gap-2 py-3 data-[state=active]:bg-background">
+            <HelpCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Preguntas</span>
           </TabsTrigger>
           <TabsTrigger value="compensation" className="flex items-center gap-2 py-3 data-[state=active]:bg-background">
             <DollarSign className="h-4 w-4" />
@@ -150,14 +229,12 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="location">Ubicación</Label>
-                  <Input
-                    id="location"
-                    name="location"
-                    placeholder="ej: Lima, Perú"
+                  <LocationCombobox
                     value={formState.location}
-                    onChange={(e) => updateField("location", e.target.value)}
-                    required
+                    onChange={(value) => updateField("location", value)}
+                    locations={locations}
                   />
+                  <p className="text-xs text-muted-foreground">Busca una ubicación existente o crea una nueva</p>
                 </div>
               </div>
 
@@ -267,6 +344,185 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Anterior
             </Button>
+            <Button type="button" onClick={() => setActiveTab("questions")}>
+              Siguiente: Preguntas
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="questions" className="space-y-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                Preguntas Personalizadas
+              </CardTitle>
+              <CardDescription>Agrega hasta 5 preguntas para conocer mejor a los candidatos (opcional)</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {questions.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/20">
+                  <HelpCircle className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                  <p className="font-medium text-base">No hay preguntas agregadas</p>
+                  <p className="text-sm mt-1">Haz clic en "Agregar Pregunta" para comenzar</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {questions.map((question, index) => (
+                    <Card key={question.id} className="border hover:border-primary/30 transition-colors bg-card">
+                      <CardContent className="pt-4 pb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="flex flex-col items-center gap-1 pt-1">
+                            <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+                            <div className="flex flex-col gap-0.5">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 hover:bg-muted"
+                                onClick={() => moveQuestion(index, "up")}
+                                disabled={index === 0}
+                                title="Mover arriba"
+                              >
+                                <ChevronUp className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-5 w-5 hover:bg-muted"
+                                onClick={() => moveQuestion(index, "down")}
+                                disabled={index === questions.length - 1}
+                                title="Mover abajo"
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="flex-1 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center">
+                                  <span className="text-xs font-semibold text-primary">{index + 1}</span>
+                                </div>
+                                <span className="text-sm font-medium text-muted-foreground">Pregunta {index + 1}</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => removeQuestion(question.id)}
+                                title="Eliminar pregunta"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <Label htmlFor={`question-label-${question.id}`} className="text-sm">
+                                Pregunta
+                              </Label>
+                              <Input
+                                id={`question-label-${question.id}`}
+                                placeholder="ej: ¿Cuántos años de experiencia tienes con React?"
+                                value={question.label}
+                                onChange={(e) => updateQuestion(question.id, "label", e.target.value)}
+                                required={questions.length > 0}
+                                className="h-9"
+                              />
+                            </div>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <div className="space-y-1.5">
+                                <Label htmlFor={`question-type-${question.id}`} className="text-sm">
+                                  Tipo de Respuesta
+                                </Label>
+                                <Select
+                                  value={question.type}
+                                  onValueChange={(v) => updateQuestion(question.id, "type", v)}
+                                >
+                                  <SelectTrigger id={`question-type-${question.id}`} className="h-9">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="short_text">
+                                      <div className="flex items-center gap-2">
+                                        <Type className="h-3.5 w-3.5" />
+                                        <span>Texto corto</span>
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value="long_text">
+                                      <div className="flex items-center gap-2">
+                                        <AlignLeft className="h-3.5 w-3.5" />
+                                        <span>Texto largo</span>
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value="yes_no">
+                                      <div className="flex items-center gap-2">
+                                        <CheckSquare className="h-3.5 w-3.5" />
+                                        <span>Sí/No</span>
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value="number">
+                                      <div className="flex items-center gap-2">
+                                        <Hash className="h-3.5 w-3.5" />
+                                        <span>Número</span>
+                                      </div>
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="flex items-end">
+                                <div className="flex items-center space-x-2 h-9">
+                                  <Checkbox
+                                    id={`required-${question.id}`}
+                                    checked={question.required}
+                                    onCheckedChange={(checked) => updateQuestion(question.id, "required", checked)}
+                                  />
+                                  <Label
+                                    htmlFor={`required-${question.id}`}
+                                    className="text-sm font-normal cursor-pointer"
+                                  >
+                                    Respuesta obligatoria
+                                  </Label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {questions.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-dashed h-10 hover:bg-primary/5 hover:border-primary bg-transparent"
+                  onClick={addQuestion}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Pregunta ({questions.length}/5)
+                </Button>
+              )}
+
+              {questions.length === 5 && (
+                <p className="text-xs text-center text-muted-foreground py-2">Has alcanzado el límite de 5 preguntas</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-between">
+            <Button type="button" variant="outline" onClick={() => setActiveTab("description")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Anterior
+            </Button>
             <Button type="button" onClick={() => setActiveTab("compensation")}>
               Siguiente: Salario
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -282,7 +538,7 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
-                <Label>Rango Salarial (Opcional)</Label>
+                <Label>Rango Salarial (Opcional - Solo visible para administradores)</Label>
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
                     <Label htmlFor="salary_min" className="text-sm text-muted-foreground">
@@ -333,7 +589,7 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Mostrar el rango salarial aumenta la transparencia y atrae candidatos adecuados
+                  Los salarios NO se mostrarán en las vistas públicas, solo en el panel de administración
                 </p>
               </div>
 
@@ -356,7 +612,7 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
           </Card>
 
           <div className="flex justify-between">
-            <Button type="button" variant="outline" onClick={() => setActiveTab("description")}>
+            <Button type="button" variant="outline" onClick={() => setActiveTab("questions")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Anterior
             </Button>
@@ -421,6 +677,10 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Modalidad:</span>
                     <span className="font-medium">{formState.modality}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Preguntas:</span>
+                    <span className="font-medium">{questions.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Estado:</span>

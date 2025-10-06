@@ -2,11 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { Database, Question } from "@/types/db"
+import type { Question, JobInsert, JobUpdate } from "@/types/db"
 import { getOrCreateLocation } from "./locations"
-
-type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"]
-type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"]
 
 function generateSlug(title: string): string {
   return title
@@ -58,13 +55,13 @@ export async function createJob(formData: FormData) {
     salary_max: formData.get("salary_max") ? Number(formData.get("salary_max")) : null,
     salary_currency: (formData.get("salary_currency") as string) || "USD",
     max_openings: Number(formData.get("max_openings")) || 1,
-    questions: questions.length > 0 ? questions : null,
+    questions: questions.length > 0 ? (questions as any) : null,
     status: (formData.get("status") as "Borrador" | "Abierta" | "Cerrada") || "Borrador",
     created_by: user.id,
     published_at: formData.get("status") === "Abierta" ? new Date().toISOString() : null,
   }
 
-  const { error } = await supabase.from("jobs").insert(jobData as any)
+  const { error } = await supabase.from("jobs").insert(jobData)
 
   if (error) {
     console.error("Error creating job:", error)
@@ -102,8 +99,11 @@ export async function updateJob(jobId: string, formData: FormData) {
     }
   }
 
-  // Get current job to check if status changed
-  const { data: currentJob } = await supabase.from("jobs").select("status, published_at").eq("id", jobId).single()
+  const { data: currentJob } = (await supabase
+    .from("jobs")
+    .select("status, published_at")
+    .eq("id", jobId)
+    .single()) as { data: { status: string; published_at: string | null } | null }
 
   const jobData: JobUpdate = {
     slug,
@@ -120,7 +120,7 @@ export async function updateJob(jobId: string, formData: FormData) {
     salary_max: formData.get("salary_max") ? Number(formData.get("salary_max")) : null,
     salary_currency: (formData.get("salary_currency") as string) || "USD",
     max_openings: Number(formData.get("max_openings")) || 1,
-    questions: questions.length > 0 ? questions : null,
+    questions: questions.length > 0 ? (questions as any) : null,
     status,
     updated_at: new Date().toISOString(),
   }
@@ -135,10 +135,7 @@ export async function updateJob(jobId: string, formData: FormData) {
     jobData.closed_at = new Date().toISOString()
   }
 
-  const { error } = await supabase
-    .from("jobs")
-    .update(jobData as any)
-    .eq("id", jobId)
+  const { error } = await supabase.from("jobs").update(jobData).eq("id", jobId)
 
   if (error) {
     console.error("Error updating job:", error)
@@ -165,10 +162,7 @@ export async function deleteJob(jobId: string) {
     deleted_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase
-    .from("jobs")
-    .update(updateData as any)
-    .eq("id", jobId)
+  const { error } = await supabase.from("jobs").update(updateData).eq("id", jobId)
 
   if (error) {
     console.error("Error deleting job:", error)
