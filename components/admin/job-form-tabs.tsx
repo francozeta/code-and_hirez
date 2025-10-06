@@ -35,6 +35,7 @@ import { createJob, updateJob } from "@/app/actions/jobs"
 import { getAllLocations } from "@/app/actions/locations"
 import { LocationCombobox } from "@/components/admin/location-combobox"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty"
 
 interface JobFormTabsProps {
   job?: Job
@@ -355,18 +356,22 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <HelpCircle className="h-5 w-5" />
+                <HelpCircle className="h-5 w-5 text-primary" />
                 Preguntas Personalizadas
               </CardTitle>
               <CardDescription>Agrega hasta 5 preguntas para conocer mejor a los candidatos (opcional)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {questions.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/20">
-                  <HelpCircle className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                  <p className="font-medium text-base">No hay preguntas agregadas</p>
-                  <p className="text-sm mt-1">Haz clic en "Agregar Pregunta" para comenzar</p>
-                </div>
+                <Empty className="py-12">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <HelpCircle className="h-5 w-5" />
+                    </EmptyMedia>
+                    <EmptyTitle>No hay preguntas agregadas</EmptyTitle>
+                    <EmptyDescription>Haz clic en "Agregar Pregunta" para comenzar</EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
               ) : (
                 <div className="space-y-3">
                   {questions.map((question, index) => (
@@ -504,7 +509,7 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-dashed h-10 hover:bg-primary/5 hover:border-primary bg-transparent"
+                  className="w-full h-10 hover:bg-primary/5 hover:text-foreground hover:border-primary bg-transparent"
                   onClick={addQuestion}
                 >
                   <Plus className="h-4 w-4 mr-2" />

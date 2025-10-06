@@ -348,6 +348,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
             </div>
           )}
 
+          {/* Step 3: Custom Questions */}
           {currentStep === 3 && jobQuestions.length > 0 && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-1">
@@ -359,7 +360,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                 <div key={question.id} className="space-y-2">
                   <Label className="text-sm">
                     {question.label}
-                    {question.required && <span className="text-destructive ml-1">*</span>}
+                    {question.required && <span className="text-muted-foreground ml-1">(obligatorio)</span>}
                   </Label>
 
                   {question.type === "short_text" && (
@@ -367,7 +368,6 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                       placeholder="Tu respuesta"
                       value={(customAnswers[question.id] as string) || ""}
                       onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                      required={question.required}
                       className="h-10"
                     />
                   )}
@@ -377,7 +377,6 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                       placeholder="Tu respuesta"
                       value={(customAnswers[question.id] as string) || ""}
                       onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                      required={question.required}
                       rows={4}
                       className="resize-none"
                     />
@@ -389,16 +388,14 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                       placeholder="0"
                       value={(customAnswers[question.id] as number) || ""}
                       onChange={(e) => handleAnswerChange(question.id, Number(e.target.value))}
-                      required={question.required}
                       className="h-10"
                     />
                   )}
 
                   {question.type === "yes_no" && (
                     <RadioGroup
-                      value={String(customAnswers[question.id] || "")}
+                      value={customAnswers[question.id] === undefined ? "" : String(customAnswers[question.id])}
                       onValueChange={(value) => handleAnswerChange(question.id, value === "true")}
-                      required={question.required}
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="true" id={`${question.id}-yes`} />
@@ -419,7 +416,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
             </div>
           )}
 
-          {/* Step 3 or 4: CV Upload (depending on whether there are custom questions) */}
+          {/* Step 4: CV Upload */}
           {currentStep === (jobQuestions.length > 0 ? 4 : 3) && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-1">
@@ -525,7 +522,9 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
         <DrawerContent className="max-h-[90vh] px-4 pb-8">
           <DrawerHeader className="pb-4">
             <DrawerTitle className="font-serif text-xl">Postular a esta vacante</DrawerTitle>
-            <DrawerDescription className="text-sm">Completa el proceso en {totalSteps} pasos</DrawerDescription>
+            <DrawerDescription className="text-sm">
+              Completa el proceso en {totalSteps} {totalSteps === 3 || totalSteps === 4 ? "simples pasos" : "paso"}
+            </DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-1">
             <WizardContent />
