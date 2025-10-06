@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { Database } from "@/types/db"
+import type { Database, Answer } from "@/types/db"
 
 type ApplicationInsert = Database["public"]["Tables"]["applications"]["Insert"]
 
@@ -13,6 +13,7 @@ export async function submitApplication(data: {
   cv_url: string
   cv_filename: string
   job_id: string
+  answers?: Answer[] | null // Added answers parameter
 }) {
   try {
     const supabase = await createClient()
@@ -25,6 +26,7 @@ export async function submitApplication(data: {
       linkedin_url: data.linkedin_url || null,
       cv_url: data.cv_url,
       cv_filename: data.cv_filename,
+      answers: data.answers || null, // Include answers in application data
       status: "Nueva",
     }
 

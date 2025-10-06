@@ -4,14 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText, Send } from "lucide-react"
+import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText, Send, HelpCircle } from "lucide-react"
 import Flag from "react-world-flags"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Drawer,
   DrawerContent,
@@ -24,13 +26,15 @@ import { applicationSchema, type ApplicationFormData } from "@/lib/validations/a
 import { submitApplication } from "@/app/actions/submit-application"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import type { Question, Answer } from "@/types/db"
 
 interface ApplicationWizardProps {
   jobId: string
+  jobQuestions?: Question[] // Added job questions prop
   isMobile?: boolean
 }
 
-type Step = 1 | 2 | 3
+type Step = 1 | 2 | 3 | 4 // Added step 4 for custom questions
 
 const countryCodes = [
   { code: "US", dialCode: "+1", name: "Estados Unidos" },
@@ -50,13 +54,14 @@ const countryCodes = [
   { code: "UY", dialCode: "+598", name: "Uruguay" },
 ]
 
-export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizardProps) {
+export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }: ApplicationWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fileName, setFileName] = useState<string>("")
   const [open, setOpen] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState("PE")
+  const [customAnswers, setCustomAnswers] = useState<Record<string, string | number | boolean>>({})
 
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
@@ -68,7 +73,8 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
     },
   })
 
-  const progress = (currentStep / 3) * 100
+  const totalSteps = jobQuestions.length > 0 ? 4 : 3
+  const progress = (currentStep / totalSteps) * 100
 
   const onSubmit = async (data: ApplicationFormData) => {
     if (!data.cv) {
@@ -115,6 +121,12 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
           : `https://${data.linkedin_url}`
         : ""
 
+      const answers: Answer[] = jobQuestions.map((question) => ({
+        question_id: question.id,
+        question_label: question.label,
+        answer: customAnswers[question.id] || "",
+      }))
+
       const result = await submitApplication({
         job_id: jobId,
         full_name: data.full_name,
@@ -123,6 +135,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
         linkedin_url: linkedinUrl,
         cv_url: publicUrl,
         cv_filename: data.cv.name,
+        answers: answers.length > 0 ? answers : null,
       })
 
       if (result.success) {
@@ -147,10 +160,22 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
       fieldsToValidate = ["full_name", "email"]
     } else if (currentStep === 2) {
       fieldsToValidate = ["phone", "linkedin_url"]
+    } else if (currentStep === 3 && jobQuestions.length > 0) {
+      const allRequiredAnswered = jobQuestions
+        .filter((q) => q.required)
+        .every((q) => {
+          const answer = customAnswers[q.id]
+          return answer !== undefined && answer !== "" && answer !== null
+        })
+
+      if (!allRequiredAnswered) {
+        toast.error("Por favor responde todas las preguntas obligatorias")
+        return
+      }
     }
 
-    const isValid = await form.trigger(fieldsToValidate)
-    if (isValid && currentStep < 3) {
+    const isValid = fieldsToValidate.length > 0 ? await form.trigger(fieldsToValidate) : true
+    if (isValid && currentStep < totalSteps) {
       setCurrentStep((prev) => (prev + 1) as Step)
     }
   }
@@ -161,12 +186,21 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
     }
   }
 
+  const handleAnswerChange = (questionId: string, value: string | number | boolean) => {
+    setCustomAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }))
+  }
+
   const WizardContent = () => (
     <div className="space-y-6">
       {/* Progress Bar */}
       <div className="space-y-2">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Paso {currentStep} de 3</span>
+          <span>
+            Paso {currentStep} de {totalSteps}
+          </span>
           <span>{Math.round(progress)}%</span>
         </div>
         <Progress value={progress} className="h-2" />
@@ -194,11 +228,23 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
           </div>
           <span className="text-xs font-medium">Contacto</span>
         </div>
+        {jobQuestions.length > 0 && (
+          <div
+            className={`flex flex-col items-center gap-2 ${currentStep >= 3 ? "text-primary" : "text-muted-foreground"}`}
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= 3 ? "border-primary bg-primary/10" : "border-muted"}`}
+            >
+              <HelpCircle className="h-4 w-4" />
+            </div>
+            <span className="text-xs font-medium">Preguntas</span>
+          </div>
+        )}
         <div
-          className={`flex flex-col items-center gap-2 ${currentStep >= 3 ? "text-primary" : "text-muted-foreground"}`}
+          className={`flex flex-col items-center gap-2 ${currentStep >= (jobQuestions.length > 0 ? 4 : 3) ? "text-primary" : "text-muted-foreground"}`}
         >
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= 3 ? "border-primary bg-primary/10" : "border-muted"}`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${currentStep >= (jobQuestions.length > 0 ? 4 : 3) ? "border-primary bg-primary/10" : "border-muted"}`}
           >
             <FileText className="h-4 w-4" />
           </div>
@@ -302,8 +348,79 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
             </div>
           )}
 
-          {/* Step 3: CV Upload */}
-          {currentStep === 3 && (
+          {currentStep === 3 && jobQuestions.length > 0 && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-base md:text-lg">Preguntas adicionales</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">Ayúdanos a conocerte mejor</p>
+              </div>
+
+              {jobQuestions.map((question) => (
+                <div key={question.id} className="space-y-2">
+                  <Label className="text-sm">
+                    {question.label}
+                    {question.required && <span className="text-destructive ml-1">*</span>}
+                  </Label>
+
+                  {question.type === "short_text" && (
+                    <Input
+                      placeholder="Tu respuesta"
+                      value={(customAnswers[question.id] as string) || ""}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      required={question.required}
+                      className="h-10"
+                    />
+                  )}
+
+                  {question.type === "long_text" && (
+                    <Textarea
+                      placeholder="Tu respuesta"
+                      value={(customAnswers[question.id] as string) || ""}
+                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                      required={question.required}
+                      rows={4}
+                      className="resize-none"
+                    />
+                  )}
+
+                  {question.type === "number" && (
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={(customAnswers[question.id] as number) || ""}
+                      onChange={(e) => handleAnswerChange(question.id, Number(e.target.value))}
+                      required={question.required}
+                      className="h-10"
+                    />
+                  )}
+
+                  {question.type === "yes_no" && (
+                    <RadioGroup
+                      value={String(customAnswers[question.id] || "")}
+                      onValueChange={(value) => handleAnswerChange(question.id, value === "true")}
+                      required={question.required}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="true" id={`${question.id}-yes`} />
+                        <Label htmlFor={`${question.id}-yes`} className="font-normal cursor-pointer">
+                          Sí
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="false" id={`${question.id}-no`} />
+                        <Label htmlFor={`${question.id}-no`} className="font-normal cursor-pointer">
+                          No
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Step 3 or 4: CV Upload (depending on whether there are custom questions) */}
+          {currentStep === (jobQuestions.length > 0 ? 4 : 3) && (
             <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-1">
                 <h3 className="font-semibold text-base md:text-lg">Sube tu CV</h3>
@@ -370,7 +487,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
               </Button>
             )}
 
-            {currentStep < 3 ? (
+            {currentStep < totalSteps ? (
               <Button type="button" onClick={nextStep} className="flex-1 h-10">
                 Siguiente
                 <ChevronRight className="ml-2 h-4 w-4" />
@@ -408,7 +525,7 @@ export function ApplicationWizard({ jobId, isMobile = false }: ApplicationWizard
         <DrawerContent className="max-h-[90vh] px-4 pb-8">
           <DrawerHeader className="pb-4">
             <DrawerTitle className="font-serif text-xl">Postular a esta vacante</DrawerTitle>
-            <DrawerDescription className="text-sm">Completa el proceso en 3 pasos</DrawerDescription>
+            <DrawerDescription className="text-sm">Completa el proceso en {totalSteps} pasos</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-1">
             <WizardContent />

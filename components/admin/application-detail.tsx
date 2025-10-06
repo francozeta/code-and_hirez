@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { Application } from "@/types/db"
+import type { Application, Answer } from "@/types/db"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -101,6 +101,8 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
       toast.error("Error al descargar el CV")
     }
   }
+
+  const answers: Answer[] = application.answers || []
 
   return (
     <div className="space-y-6">
@@ -202,6 +204,24 @@ export function ApplicationDetail({ application }: ApplicationDetailProps) {
               </div>
             </CardContent>
           </Card>
+
+          {answers.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Respuestas a Preguntas</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {answers.map((answer, index) => (
+                  <div key={index} className="space-y-1 pb-3 border-b last:border-b-0 last:pb-0">
+                    <p className="text-sm font-medium text-muted-foreground">{answer.question_label}</p>
+                    <p className="text-base">
+                      {typeof answer.answer === "boolean" ? (answer.answer ? "Sí" : "No") : String(answer.answer)}
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* CV */}
           <Card>

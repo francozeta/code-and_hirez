@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { Briefcase, MapPin, Clock, Users, DollarSign } from "lucide-react"
+import { Briefcase, MapPin, Clock, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ApplicationWizard } from "@/components/application-wizard"
@@ -68,15 +68,6 @@ export default async function JobPage({ params }: JobPageProps) {
                 </Badge>
               )}
             </div>
-
-            {job.salary_min && job.salary_max && (
-              <Badge className="gap-1.5 text-xs md:text-sm px-3 py-1.5 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                <DollarSign className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-                <span className="font-semibold">
-                  ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()} {job.salary_currency || "MXN"}
-                </span>
-              </Badge>
-            )}
           </div>
         </div>
       </section>
@@ -118,7 +109,7 @@ export default async function JobPage({ params }: JobPageProps) {
                       <CardDescription className="text-sm">Completa el proceso en 3 simples pasos</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <ApplicationWizard jobId={job.id} />
+                      <ApplicationWizard jobId={job.id} jobQuestions={job.questions || []} />
                     </CardContent>
                   </Card>
                 </div>
@@ -127,7 +118,7 @@ export default async function JobPage({ params }: JobPageProps) {
 
             {/* Mobile Wizard - Modal with floating button */}
             <div className="lg:hidden mt-6">
-              <ApplicationWizard jobId={job.id} isMobile />
+              <ApplicationWizard jobId={job.id} jobQuestions={job.questions || []} isMobile />
             </div>
           </div>
         </div>

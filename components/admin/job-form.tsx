@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
-import type { Job } from "@/types/db"
+import type { Job, Question } from "@/types/db"
 import { createJob, updateJob } from "@/app/actions/jobs"
+import { JobQuestionsStep } from "./job-questions-steps"
 
 interface JobFormProps {
   job?: Job
@@ -22,6 +23,7 @@ export function JobForm({ job }: JobFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [questions, setQuestions] = useState<Question[]>(job?.questions || [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,6 +31,7 @@ export function JobForm({ job }: JobFormProps) {
     setError("")
 
     const formData = new FormData(e.currentTarget)
+    formData.append("questions", JSON.stringify(questions))
 
     try {
       if (job) {
@@ -155,6 +158,8 @@ export function JobForm({ job }: JobFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      <JobQuestionsStep questions={questions} onChange={setQuestions} />
 
       <Card>
         <CardHeader>

@@ -2,7 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { Database } from "@/types/db"
+import type { Database, Question } from "@/types/db"
+import { getOrCreateLocation } from "./locations"
 
 type JobInsert = Database["public"]["Tables"]["jobs"]["Insert"]
 type JobUpdate = Database["public"]["Tables"]["jobs"]["Update"]
@@ -28,12 +29,26 @@ export async function createJob(formData: FormData) {
 
   const title = formData.get("title") as string
   const slug = generateSlug(title)
+  const locationName = formData.get("location") as string
+
+  const locationId = await getOrCreateLocation(locationName)
+
+  const questionsJson = formData.get("questions") as string
+  let questions: Question[] = []
+  if (questionsJson) {
+    try {
+      questions = JSON.parse(questionsJson)
+    } catch (e) {
+      console.error("Error parsing questions:", e)
+    }
+  }
 
   const jobData: JobInsert = {
     slug,
     title,
     company: formData.get("company") as string,
-    location: formData.get("location") as string,
+    location: locationName,
+    location_id: locationId,
     modality: formData.get("modality") as "Presencial" | "Remoto" | "Híbrido",
     contract_type: formData.get("contract_type") as "Tiempo completo" | "Medio tiempo" | "Freelance" | "Contrato",
     description: formData.get("description") as string,
@@ -43,6 +58,7 @@ export async function createJob(formData: FormData) {
     salary_max: formData.get("salary_max") ? Number(formData.get("salary_max")) : null,
     salary_currency: (formData.get("salary_currency") as string) || "USD",
     max_openings: Number(formData.get("max_openings")) || 1,
+    questions: questions.length > 0 ? questions : null,
     status: (formData.get("status") as "Borrador" | "Abierta" | "Cerrada") || "Borrador",
     created_by: user.id,
     published_at: formData.get("status") === "Abierta" ? new Date().toISOString() : null,
@@ -72,6 +88,19 @@ export async function updateJob(jobId: string, formData: FormData) {
   const title = formData.get("title") as string
   const slug = generateSlug(title)
   const status = formData.get("status") as "Borrador" | "Abierta" | "Cerrada"
+  const locationName = formData.get("location") as string
+
+  const locationId = await getOrCreateLocation(locationName)
+
+  const questionsJson = formData.get("questions") as string
+  let questions: Question[] = []
+  if (questionsJson) {
+    try {
+      questions = JSON.parse(questionsJson)
+    } catch (e) {
+      console.error("Error parsing questions:", e)
+    }
+  }
 
   // Get current job to check if status changed
   const { data: currentJob } = await supabase.from("jobs").select("status, published_at").eq("id", jobId).single()
@@ -80,7 +109,8 @@ export async function updateJob(jobId: string, formData: FormData) {
     slug,
     title,
     company: formData.get("company") as string,
-    location: formData.get("location") as string,
+    location: locationName,
+    location_id: locationId,
     modality: formData.get("modality") as "Presencial" | "Remoto" | "Híbrido",
     contract_type: formData.get("contract_type") as "Tiempo completo" | "Medio tiempo" | "Freelance" | "Contrato",
     description: formData.get("description") as string,
@@ -90,6 +120,7 @@ export async function updateJob(jobId: string, formData: FormData) {
     salary_max: formData.get("salary_max") ? Number(formData.get("salary_max")) : null,
     salary_currency: (formData.get("salary_currency") as string) || "USD",
     max_openings: Number(formData.get("max_openings")) || 1,
+    questions: questions.length > 0 ? questions : null,
     status,
     updated_at: new Date().toISOString(),
   }
