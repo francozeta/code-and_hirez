@@ -10,10 +10,6 @@ import { cn } from "@/lib/utils"
 export function AdminHeader() {
   const pathname = usePathname()
 
-  // Don't show header on login page
-  if (pathname === "/admin/login") {
-    return null
-  }
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
