@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useCallback, memo, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -30,11 +32,11 @@ import type { Question, Answer } from "@/types/db"
 
 interface ApplicationWizardProps {
   jobId: string
-  jobQuestions?: Question[] // Added job questions prop
+  jobQuestions?: Question[]
   isMobile?: boolean
 }
 
-type Step = 1 | 2 | 3 | 4 // Added step 4 for custom questions
+type Step = 1 | 2 | 3 | 4
 
 const countryCodes = [
   { code: "US", dialCode: "+1", name: "Estados Unidos" },
@@ -54,6 +56,82 @@ const countryCodes = [
   { code: "UY", dialCode: "+598", name: "Uruguay" },
 ]
 
+interface QuestionInputProps {
+  question: Question
+  defaultValue?: string | number | boolean
+}
+
+const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const radioValueRef = useRef<string>(defaultValue === undefined ? "" : String(defaultValue))
+
+  return (
+    <div className="space-y-2" data-question-id={question.id}>
+      <Label className="text-sm">
+        {question.label}
+        {question.required && <span className="text-muted-foreground ml-1">(obligatorio)</span>}
+      </Label>
+
+      {question.type === "short_text" && (
+        <Input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          placeholder="Tu respuesta"
+          defaultValue={(defaultValue as string) || ""}
+          className="h-10"
+          data-question-type="short_text"
+        />
+      )}
+
+      {question.type === "long_text" && (
+        <Textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          placeholder="Tu respuesta"
+          defaultValue={(defaultValue as string) || ""}
+          rows={4}
+          className="resize-none"
+          data-question-type="long_text"
+        />
+      )}
+
+      {question.type === "number" && (
+        <Input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          type="number"
+          placeholder="0"
+          defaultValue={(defaultValue as number) || ""}
+          className="h-10"
+          data-question-type="number"
+        />
+      )}
+
+      {question.type === "yes_no" && (
+        <RadioGroup
+          defaultValue={radioValueRef.current}
+          onValueChange={(val) => {
+            radioValueRef.current = val
+          }}
+          data-question-type="yes_no"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="true" id={`${question.id}-yes`} />
+            <Label htmlFor={`${question.id}-yes`} className="font-normal cursor-pointer">
+              Sí
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="false" id={`${question.id}-no`} />
+            <Label htmlFor={`${question.id}-no`} className="font-normal cursor-pointer">
+              No
+            </Label>
+          </div>
+        </RadioGroup>
+      )}
+    </div>
+  )
+})
+
+QuestionInput.displayName = "QuestionInput"
+
 export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }: ApplicationWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>(1)
@@ -61,7 +139,8 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
   const [fileName, setFileName] = useState<string>("")
   const [open, setOpen] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState("PE")
-  const [customAnswers, setCustomAnswers] = useState<Record<string, string | number | boolean>>({})
+
+  const customAnswersRef = useRef<Record<string, string | number | boolean>>({})
 
   const form = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
@@ -75,6 +154,38 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
 
   const totalSteps = jobQuestions.length > 0 ? 4 : 3
   const progress = (currentStep / totalSteps) * 100
+
+  const getCustomAnswers = useCallback((): Record<string, string | number | boolean> => {
+    const answers: Record<string, string | number | boolean> = {}
+
+    jobQuestions.forEach((question) => {
+      const container = document.querySelector(`[data-question-id="${question.id}"]`)
+      if (!container) return
+
+      const questionType = container.querySelector("[data-question-type]")?.getAttribute("data-question-type")
+
+      if (questionType === "short_text" || questionType === "long_text") {
+        const input = container.querySelector("input, textarea") as HTMLInputElement | HTMLTextAreaElement
+        if (input) {
+          answers[question.id] = input.value
+        }
+      } else if (questionType === "number") {
+        const input = container.querySelector("input") as HTMLInputElement
+        if (input && input.value) {
+          answers[question.id] = Number(input.value)
+        }
+      } else if (questionType === "yes_no") {
+        const radioGroup = container.querySelector('[role="radiogroup"]')
+        const checkedRadio = radioGroup?.querySelector('button[data-state="checked"]')
+        if (checkedRadio) {
+          const value = checkedRadio.getAttribute("value")
+          answers[question.id] = value === "true"
+        }
+      }
+    })
+
+    return answers
+  }, [jobQuestions])
 
   const onSubmit = async (data: ApplicationFormData) => {
     if (!data.cv) {
@@ -91,8 +202,6 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
       const fileName = `${crypto.randomUUID()}.${fileExt}`
       const filePath = `applications/${jobId}/${fileName}`
 
-      console.log("Uploading CV from client:", { filePath, fileSize: data.cv.size, fileType: data.cv.type })
-
       const { error: uploadError } = await supabase.storage.from("cvs").upload(filePath, data.cv, {
         contentType: data.cv.type,
         upsert: false,
@@ -105,9 +214,6 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
         return
       }
 
-      console.log("CV uploaded successfully from client")
-
-      // Get public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("cvs").getPublicUrl(filePath)
@@ -118,9 +224,12 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
       const linkedinUrl = data.linkedin_url
         ? data.linkedin_url.startsWith("http")
           ? data.linkedin_url
-          : `https://${data.linkedin_url}`
+          : data.linkedin_url.startsWith("linkedin.com/in/")
+            ? `https://${data.linkedin_url}`
+            : `https://linkedin.com/in/${data.linkedin_url}`
         : ""
 
+      const customAnswers = getCustomAnswers()
       const answers: Answer[] = jobQuestions.map((question) => ({
         question_id: question.id,
         question_label: question.label,
@@ -161,6 +270,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
     } else if (currentStep === 2) {
       fieldsToValidate = ["phone", "linkedin_url"]
     } else if (currentStep === 3 && jobQuestions.length > 0) {
+      const customAnswers = getCustomAnswers()
       const allRequiredAnswered = jobQuestions
         .filter((q) => q.required)
         .every((q) => {
@@ -184,13 +294,6 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
     if (currentStep > 1) {
       setCurrentStep((prev) => (prev - 1) as Step)
     }
-  }
-
-  const handleAnswerChange = (questionId: string, value: string | number | boolean) => {
-    setCustomAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }))
   }
 
   const WizardContent = () => (
@@ -324,7 +427,19 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                             ))}
                           </SelectContent>
                         </Select>
-                        <Input type="tel" placeholder="999 999 999" className="h-10 flex-1" required {...field} />
+                        <Input
+                          type="tel"
+                          placeholder="999 999 999"
+                          className="h-10 flex-1"
+                          required
+                          pattern="[0-9]*"
+                          inputMode="numeric"
+                          onInput={(e) => {
+                            const target = e.target as HTMLInputElement
+                            target.value = target.value.replace(/[^0-9]/g, "")
+                          }}
+                          {...field}
+                        />
                       </div>
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -339,7 +454,23 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                   <FormItem>
                     <FormLabel className="text-sm">LinkedIn</FormLabel>
                     <FormControl>
-                      <Input type="text" placeholder="linkedin.com/in/tu-perfil" className="h-10" required {...field} />
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                          linkedin.com/in/
+                        </span>
+                        <Input
+                          type="text"
+                          placeholder="tu-perfil"
+                          className="h-10 pl-[130px]"
+                          required
+                          {...field}
+                          onChange={(e) => {
+                            let value = e.target.value
+                            value = value.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//i, "")
+                            field.onChange(value)
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
@@ -357,61 +488,11 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
               </div>
 
               {jobQuestions.map((question) => (
-                <div key={question.id} className="space-y-2">
-                  <Label className="text-sm">
-                    {question.label}
-                    {question.required && <span className="text-muted-foreground ml-1">(obligatorio)</span>}
-                  </Label>
-
-                  {question.type === "short_text" && (
-                    <Input
-                      placeholder="Tu respuesta"
-                      value={(customAnswers[question.id] as string) || ""}
-                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                      className="h-10"
-                    />
-                  )}
-
-                  {question.type === "long_text" && (
-                    <Textarea
-                      placeholder="Tu respuesta"
-                      value={(customAnswers[question.id] as string) || ""}
-                      onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                      rows={4}
-                      className="resize-none"
-                    />
-                  )}
-
-                  {question.type === "number" && (
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      value={(customAnswers[question.id] as number) || ""}
-                      onChange={(e) => handleAnswerChange(question.id, Number(e.target.value))}
-                      className="h-10"
-                    />
-                  )}
-
-                  {question.type === "yes_no" && (
-                    <RadioGroup
-                      value={customAnswers[question.id] === undefined ? "" : String(customAnswers[question.id])}
-                      onValueChange={(value) => handleAnswerChange(question.id, value === "true")}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id={`${question.id}-yes`} />
-                        <Label htmlFor={`${question.id}-yes`} className="font-normal cursor-pointer">
-                          Sí
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id={`${question.id}-no`} />
-                        <Label htmlFor={`${question.id}-no`} className="font-normal cursor-pointer">
-                          No
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  )}
-                </div>
+                <QuestionInput
+                  key={question.id}
+                  question={question}
+                  defaultValue={customAnswersRef.current[question.id]}
+                />
               ))}
             </div>
           )}
@@ -451,11 +532,9 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                           className="sr-only"
                           onChange={(e) => {
                             const file = e.target.files?.[0]
-                            console.log("[v0] File selected:", file?.name, "Type:", file?.type, "Size:", file?.size)
                             if (file) {
                               onChange(file)
                               setFileName(file.name)
-                              console.log("[v0] File set in form:", file.name)
                             }
                           }}
                           {...field}
@@ -522,9 +601,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
         <DrawerContent className="max-h-[90vh] px-4 pb-8">
           <DrawerHeader className="pb-4">
             <DrawerTitle className="font-serif text-xl">Postular a esta vacante</DrawerTitle>
-            <DrawerDescription className="text-sm">
-              Completa el proceso en {totalSteps} {totalSteps === 3 || totalSteps === 4 ? "simples pasos" : "paso"}
-            </DrawerDescription>
+            <DrawerDescription className="text-sm">Completa el proceso en {totalSteps} simples pasos</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-1">
             <WizardContent />

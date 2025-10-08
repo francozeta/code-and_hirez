@@ -31,6 +31,7 @@ export default async function JobPage({ params }: JobPageProps) {
   }
 
   const openingsLeft = job.max_openings - job.openings_filled
+  const totalSteps = job.questions && job.questions.length > 0 ? 4 : 3
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,7 +107,9 @@ export default async function JobPage({ params }: JobPageProps) {
                   <Card className="border-2 shadow-lg">
                     <CardHeader className="pb-4">
                       <CardTitle className="font-serif text-xl">Postular a esta vacante</CardTitle>
-                      <CardDescription className="text-sm">Completa el proceso en 3 simples pasos</CardDescription>
+                      <CardDescription className="text-sm">
+                        Completa el proceso en {totalSteps} simples pasos
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
                       <ApplicationWizard jobId={job.id} jobQuestions={job.questions || []} />
