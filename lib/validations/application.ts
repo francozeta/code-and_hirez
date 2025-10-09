@@ -10,7 +10,10 @@ const ACCEPTED_FILE_TYPES = [
 export const applicationSchema = z.object({
   full_name: z.string().min(2, "El nombre completo es requerido"),
   email: z.string().email("Email inválido"),
-  phone: z.string().min(1, "El teléfono es requerido"),
+  phone: z
+    .string()
+    .min(1, "El teléfono es requerido")
+    .regex(/^[0-9]+$/, "El teléfono solo debe contener números"),
   linkedin_url: z.string().min(1, "El perfil de LinkedIn es requerido"),
   cv: z
     .instanceof(File)
