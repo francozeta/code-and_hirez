@@ -454,14 +454,14 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                   <FormItem>
                     <FormLabel className="text-sm">LinkedIn</FormLabel>
                     <FormControl>
-                      <div className="flex items-center gap-1 h-10 rounded-md border border-input bg-background px-3 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground whitespace-nowrap">
+                      <div className="relative flex items-center h-10 rounded-md border border-input bg-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                        <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-muted-foreground bg-muted/50 border-r border-border">
                           linkedin.com/in/
                         </span>
                         <Input
                           type="text"
                           placeholder="tu-perfil"
-                          className="h-auto border-0 bg-transparent px-1 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none"
+                          className="h-full border-0 bg-transparent pl-2 pr-3 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none rounded-l-none"
                           required
                           {...field}
                           onChange={(e) => {

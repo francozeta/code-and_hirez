@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Search } from "lucide-react"
 import { JobCard } from "@/components/job-card"
 import { JobFilters } from "@/components/job-filters"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -39,7 +40,6 @@ export default function JobsPage() {
       if (error) {
         console.error("Error fetching jobs:", error)
       } else {
-        console.log("Fetched jobs:", data)
         setJobs(data || [])
         setFilteredJobs(data || [])
       }
@@ -53,14 +53,17 @@ export default function JobsPage() {
     let filtered = jobs
 
     if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
       filtered = filtered.filter(
         (job) =>
-          job.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-          job.company.toLowerCase().includes(filters.search.toLowerCase()),
+          job.title.toLowerCase().includes(searchLower) ||
+          job.company.toLowerCase().includes(searchLower) ||
+          job.description?.toLowerCase().includes(searchLower) ||
+          job.requirements?.toLowerCase().includes(searchLower),
       )
     }
 
-    if (filters.location) {
+    if (filters.location && filters.location.trim() !== "") {
       filtered = filtered.filter((job) => job.location.toLowerCase().includes(filters.location.toLowerCase()))
     }
 
@@ -96,20 +99,42 @@ export default function JobsPage() {
             </div>
 
             {/* Jobs Grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {isLoading ? (
-                <>
-                  {[...Array(6)].map((_, i) => (
-                    <JobCardSkeleton key={i} />
-                  ))}
-                </>
-              ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-muted-foreground text-lg">No se encontraron vacantes con los filtros aplicados</p>
-                </div>
-              )}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {isLoading ? (
+                    "Cargando vacantes..."
+                  ) : (
+                    <>
+                      {filteredJobs.length} {filteredJobs.length === 1 ? "vacante encontrada" : "vacantes encontradas"}
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {isLoading ? (
+                  <>
+                    {[...Array(6)].map((_, i) => (
+                      <JobCardSkeleton key={i} />
+                    ))}
+                  </>
+                ) : filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
+                ) : (
+                  <div className="col-span-full text-center py-16">
+                    <div className="max-w-md mx-auto space-y-3">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                        <Search className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-semibold text-lg">No se encontraron vacantes</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Intenta ajustar los filtros o buscar con otros términos
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
