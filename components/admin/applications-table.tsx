@@ -44,16 +44,16 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
   }
 
   return (
-    <div className="border rounded-lg bg-card">
+    <div className="border rounded-lg bg-card overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Candidato</TableHead>
-            <TableHead>Vacante</TableHead>
-            <TableHead>Contacto</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Calificación</TableHead>
-            <TableHead>Fecha</TableHead>
+            <TableHead className="min-w-[180px]">Candidato</TableHead>
+            <TableHead className="min-w-[180px]">Vacante</TableHead>
+            <TableHead className="min-w-[100px]">Contacto</TableHead>
+            <TableHead className="min-w-[100px]">Estado</TableHead>
+            <TableHead className="min-w-[100px]">Calificación</TableHead>
+            <TableHead className="min-w-[120px]">Fecha</TableHead>
             <TableHead className="w-[70px]"></TableHead>
           </TableRow>
         </TableHeader>

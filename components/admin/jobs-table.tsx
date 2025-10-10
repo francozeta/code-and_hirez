@@ -32,15 +32,15 @@ export function JobsTable({ jobs }: JobsTableProps) {
   }
 
   return (
-    <div className="border rounded-lg bg-card">
+    <div className="border rounded-lg bg-card overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Título</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Cupos</TableHead>
-            <TableHead>Postulaciones</TableHead>
-            <TableHead>Creada</TableHead>
+            <TableHead className="min-w-[200px]">Título</TableHead>
+            <TableHead className="min-w-[100px]">Estado</TableHead>
+            <TableHead className="min-w-[80px]">Cupos</TableHead>
+            <TableHead className="min-w-[120px]">Postulaciones</TableHead>
+            <TableHead className="min-w-[120px]">Creada</TableHead>
             <TableHead className="w-[70px]"></TableHead>
           </TableRow>
         </TableHeader>

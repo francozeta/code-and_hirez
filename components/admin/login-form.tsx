@@ -55,18 +55,6 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-lg border-primary/10">
       <CardHeader className="space-y-3 text-center pb-6">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <svg
-            className="h-6 w-6 text-primary"
-            viewBox="0 0 76 65"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-label="Logo"
-          >
-            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="currentColor" />
-          </svg>
-          <span className="font-serif text-2xl font-semibold">Code&Hirez</span>
-        </div>
         <CardTitle className="font-serif text-2xl">Panel de Administración</CardTitle>
         <CardDescription>Ingresa tus credenciales para continuar</CardDescription>
       </CardHeader>
