@@ -21,8 +21,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty leading-relaxed">
-              Conectamos talento excepcional con empresas innovadoras. Un proceso de reclutamiento más humano,
-              transparente y efectivo.
+              Confía en tu talento y avanza hacia nuevas posibilidades profesionales.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center pt-2 md:pt-4">
@@ -66,7 +65,7 @@ export default function HomePage() {
                   </div>
                   <CardTitle className="font-serif text-xl md:text-2xl">Proceso cercano</CardTitle>
                   <CardDescription className="text-sm md:text-base leading-relaxed">
-                    Cada postulación es revisada personalmente. No eres solo un número en nuestro sistema.
+                    Cada talento importa. El tuyo también.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -90,7 +89,7 @@ export default function HomePage() {
                   </div>
                   <CardTitle className="font-serif text-xl md:text-2xl">Respuesta rápida</CardTitle>
                   <CardDescription className="text-sm md:text-base leading-relaxed">
-                    Te mantenemos informado en cada etapa. Valoramos tu tiempo tanto como el nuestro.
+                    Tu tiempo importa. Nuestra comunicación también. Claridad en cada paso.
                   </CardDescription>
                 </CardHeader>
               </Card>
