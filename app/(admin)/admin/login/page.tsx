@@ -19,7 +19,7 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-cream-50 to-green-50/30 px-4">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-rose-50 via-cream-50 to-green-50/30 px-4 py-12">
       <LoginForm />
     </div>
   )

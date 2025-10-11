@@ -44,94 +44,98 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
   }
 
   return (
-    <div className="border rounded-lg bg-card overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="min-w-[180px]">Candidato</TableHead>
-            <TableHead className="min-w-[180px]">Vacante</TableHead>
-            <TableHead className="min-w-[100px]">Contacto</TableHead>
-            <TableHead className="min-w-[100px]">Estado</TableHead>
-            <TableHead className="min-w-[100px]">Calificación</TableHead>
-            <TableHead className="min-w-[120px]">Fecha</TableHead>
-            <TableHead className="w-[70px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {applications.map((app) => (
-            <TableRow key={app.id}>
-              <TableCell>
-                <div>
-                  <Link href={`/admin/applications/${app.id}`} className="font-medium hover:underline">
-                    {app.full_name}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">{app.email}</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div>
-                  <p className="font-medium text-sm">{app.jobs?.title || "N/A"}</p>
-                  <p className="text-xs text-muted-foreground">{app.jobs?.company || "N/A"}</p>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  {app.phone && (
-                    <a
-                      href={`https://wa.me/${getWhatsAppNumber(app.phone)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-green-600 transition-colors"
-                      title="Contactar por WhatsApp"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                    </a>
-                  )}
-                  <a href={`mailto:${app.email}`} className="text-muted-foreground hover:text-foreground">
-                    <Mail className="w-4 h-4" />
-                  </a>
-                  {app.linkedin_url && (
-                    <a
-                      href={app.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant={statusColors[app.status] || "outline"}>{app.status}</Badge>
-              </TableCell>
-              <TableCell>
-                {app.rating ? (
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{app.rating}</span>
-                  </div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">-</span>
-                )}
-              </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {formatDistanceToNow(new Date(app.created_at), {
-                  addSuffix: true,
-                  locale: es,
-                })}
-              </TableCell>
-              <TableCell>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/admin/applications/${app.id}`}>
-                    <Eye className="w-4 h-4" />
-                  </Link>
-                </Button>
-              </TableCell>
+    <div className="border rounded-lg bg-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[180px] w-[220px]">Candidato</TableHead>
+              <TableHead className="min-w-[180px] w-[220px]">Vacante</TableHead>
+              <TableHead className="min-w-[100px] w-[120px]">Contacto</TableHead>
+              <TableHead className="min-w-[100px] w-[120px]">Estado</TableHead>
+              <TableHead className="min-w-[100px] w-[120px]">Calificación</TableHead>
+              <TableHead className="min-w-[120px] w-[140px]">Fecha</TableHead>
+              <TableHead className="w-[70px]"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {applications.map((app) => (
+              <TableRow key={app.id}>
+                <TableCell>
+                  <div className="max-w-[200px]">
+                    <Link href={`/admin/applications/${app.id}`} className="font-medium hover:underline line-clamp-1">
+                      {app.full_name}
+                    </Link>
+                    <p className="text-sm text-muted-foreground truncate">{app.email}</p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="max-w-[200px]">
+                    <p className="font-medium text-sm line-clamp-1">{app.jobs?.title || "N/A"}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">{app.jobs?.company || "N/A"}</p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    {app.phone && (
+                      <a
+                        href={`https://wa.me/${getWhatsAppNumber(app.phone)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-green-600 transition-colors"
+                        title="Contactar por WhatsApp"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </a>
+                    )}
+                    <a href={`mailto:${app.email}`} className="text-muted-foreground hover:text-foreground">
+                      <Mail className="w-4 h-4" />
+                    </a>
+                    {app.linkedin_url && (
+                      <a
+                        href={app.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={statusColors[app.status] || "outline"} className="whitespace-nowrap">
+                    {app.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {app.rating ? (
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium">{app.rating}</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                  {formatDistanceToNow(new Date(app.created_at), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href={`/admin/applications/${app.id}`}>
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

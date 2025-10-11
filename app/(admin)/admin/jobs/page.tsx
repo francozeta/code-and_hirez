@@ -30,13 +30,13 @@ async function JobsContent() {
 
 export default function JobsPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-serif text-4xl font-bold mb-2">Vacantes</h1>
-          <p className="text-muted-foreground">Gestiona las ofertas de trabajo publicadas</p>
+          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">Vacantes</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Gestiona las ofertas de trabajo publicadas</p>
         </div>
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="w-full sm:w-auto">
           <Link href="/admin/jobs/new">
             <Plus className="w-4 h-4 mr-2" />
             Nueva Vacante

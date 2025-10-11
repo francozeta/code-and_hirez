@@ -86,7 +86,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section - Fluid design without heavy containers */}
-      <section className="relative py-12 md:py-20 lg:py-32 overflow-hidden">
+      <section className="relative py-16 md:py-24 lg:py-32 xl:py-40 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-secondary/30" />
 
         {/* Decorative elements */}
@@ -94,11 +94,11 @@ export default function AboutPage() {
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
 
         <div className="container relative mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-[400px_1fr] gap-8 md:gap-12 lg:gap-16 items-center">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-[420px_1fr] gap-8 md:gap-12 lg:gap-20 items-center">
               {/* Profile Image - More elegant presentation */}
               <div className="mx-auto lg:mx-0 relative">
-                <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+                <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-[420px] lg:h-[420px]">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 rounded-[3rem] rotate-6" />
                   <div className="relative w-full h-full rounded-[3rem] overflow-hidden border-4 border-background shadow-2xl">
                     <Image
