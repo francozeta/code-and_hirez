@@ -44,10 +44,10 @@ export function LoginForm() {
 
       if (result?.error) {
         setError(result.error)
+        setIsLoading(false)
       }
     } catch (err) {
       setError("Error al iniciar sesión. Intenta nuevamente.")
-    } finally {
       setIsLoading(false)
     }
   }
