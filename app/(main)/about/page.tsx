@@ -131,9 +131,7 @@ export default function AboutPage() {
                 </div>
 
                 <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl text-pretty">
-                  Especialista en reclutamiento full-cycle para roles de IT, ingeniería y gestión. Experta en
-                  identificar talento de alto nivel, gestionar proyectos de alto volumen y colaborar con gerentes de
-                  contratación para alinear estrategias de talento con objetivos empresariales.
+                 Especialista en reclutamiento IT full-cycle con enfoque estratégico y orientado a resultados. Experiencia optimizando procesos de selección y reduciendo tiempos de contratación sin perder calidad. Genero relaciones sólidas con hiring managers y stakeholders para asegurar contrataciones alineadas a la visión del negocio.
                 </p>
 
                 {/* LinkedIn CTA */}
