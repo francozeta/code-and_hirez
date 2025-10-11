@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache"
 import type { Question, JobInsert, JobUpdate } from "@/types/db"
 import { getOrCreateLocation } from "./locations"
 
-function generateSlug(title: string): string {
+function generateSlug(title: string | null | undefined): string {
+  if (!title || typeof title !== "string" || title.trim() === "") {
+    throw new Error("El título es requerido para generar el slug")
+  }
+
   return title
     .toLowerCase()
     .normalize("NFD")
@@ -25,6 +29,21 @@ export async function createJob(formData: FormData) {
   }
 
   const title = formData.get("title") as string
+
+  if (!title || title.trim() === "") {
+    throw new Error("El título es requerido")
+  }
+
+  const company = formData.get("company") as string
+  if (!company || company.trim() === "") {
+    throw new Error("La empresa es requerida")
+  }
+
+  const description = formData.get("description") as string
+  if (!description || description.trim() === "") {
+    throw new Error("La descripción es requerida")
+  }
+
   const slug = generateSlug(title)
   const locationName = formData.get("location") as string
 
@@ -43,12 +62,12 @@ export async function createJob(formData: FormData) {
   const jobData: JobInsert = {
     slug,
     title,
-    company: formData.get("company") as string,
+    company,
     location: locationName,
     location_id: locationId,
     modality: formData.get("modality") as "Presencial" | "Remoto" | "Híbrido",
     contract_type: formData.get("contract_type") as "Tiempo completo" | "Medio tiempo" | "Freelance" | "Contrato",
-    description: formData.get("description") as string,
+    description,
     requirements: (formData.get("requirements") as string) || null,
     benefits: (formData.get("benefits") as string) || null,
     salary_min: formData.get("salary_min") ? Number(formData.get("salary_min")) : null,
@@ -83,6 +102,11 @@ export async function updateJob(jobId: string, formData: FormData) {
   }
 
   const title = formData.get("title") as string
+
+  if (!title || title.trim() === "") {
+    throw new Error("El título es requerido")
+  }
+
   const slug = generateSlug(title)
   const status = formData.get("status") as "Borrador" | "Abierta" | "Cerrada"
   const locationName = formData.get("location") as string

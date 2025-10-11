@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ApplicationWizard } from "@/components/application-wizard"
 import { createServerClient } from "@/lib/supabase/server"
 import type { Job } from "@/types/db"
+import { sanitizeHtml } from "@/lib/sanitize-html"
 
 interface JobPageProps {
   params: Promise<{ slug: string }>
@@ -84,9 +85,10 @@ export default async function JobPage({ params }: JobPageProps) {
                     <CardTitle className="font-serif text-xl md:text-2xl">Descripción del puesto</CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
-                      {job.description}
-                    </p>
+                    <div
+                      className="prose prose-sm max-w-none text-sm md:text-base text-foreground/90 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.description || "") }}
+                    />
                   </CardContent>
                 </Card>
 
@@ -95,9 +97,10 @@ export default async function JobPage({ params }: JobPageProps) {
                     <CardTitle className="font-serif text-xl md:text-2xl">Requisitos</CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <p className="text-sm md:text-base text-foreground/90 whitespace-pre-wrap text-pretty leading-relaxed">
-                      {job.requirements}
-                    </p>
+                    <div
+                      className="prose prose-sm max-w-none text-sm md:text-base text-foreground/90 leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.requirements || "") }}
+                    />
                   </CardContent>
                 </Card>
               </div>

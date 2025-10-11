@@ -7,11 +7,11 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import {
   Briefcase,
   FileText,
@@ -136,6 +136,31 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (!formState.title.trim()) {
+      toast.error("El título es requerido")
+      setActiveTab("basic")
+      return
+    }
+
+    if (!formState.company.trim()) {
+      toast.error("La empresa es requerida")
+      setActiveTab("basic")
+      return
+    }
+
+    if (!formState.location.trim()) {
+      toast.error("La ubicación es requerida")
+      setActiveTab("basic")
+      return
+    }
+
+    if (!formState.description.trim()) {
+      toast.error("La descripción es requerida")
+      setActiveTab("description")
+      return
+    }
+
     setIsLoading(true)
     setError("")
 
@@ -159,8 +184,9 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
       router.push("/admin/jobs")
       router.refresh()
     } catch (err) {
-      toast.error("Error al guardar la vacante. Intenta nuevamente.")
-      setError("Error al guardar la vacante. Intenta nuevamente.")
+      const errorMessage = err instanceof Error ? err.message : "Error al guardar la vacante. Intenta nuevamente."
+      toast.error(errorMessage)
+      setError(errorMessage)
       console.error(err)
     } finally {
       setIsLoading(false)
@@ -293,31 +319,24 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
             <CardContent className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="description">Descripción del Puesto</Label>
-                <Textarea
-                  id="description"
-                  name="description"
+                <RichTextEditor
+                  content={formState.description}
+                  onChange={(html) => updateField("description", html)}
                   placeholder="Describe las responsabilidades, el equipo, y lo que hace especial esta posición..."
-                  rows={8}
-                  value={formState.description}
-                  onChange={(e) => updateField("description", e.target.value)}
-                  required
-                  className="resize-none"
+                  className="min-h-[250px]"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Escribe texto normal con saltos de línea. Se mostrará tal como lo escribas.
+                  Usa las herramientas de formato para dar estilo a tu texto (negrita, listas, enlaces, etc.)
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="requirements">Requisitos</Label>
-                <Textarea
-                  id="requirements"
-                  name="requirements"
-                  placeholder="- 3+ años de experiencia&#10;- React y TypeScript&#10;- Inglés intermedio"
-                  rows={6}
-                  value={formState.requirements}
-                  onChange={(e) => updateField("requirements", e.target.value)}
-                  className="resize-none"
+                <RichTextEditor
+                  content={formState.requirements}
+                  onChange={(html) => updateField("requirements", html)}
+                  placeholder="Lista las habilidades y experiencia necesarias..."
+                  className="min-h-[200px]"
                 />
                 <p className="text-xs text-muted-foreground">
                   Lista las habilidades y experiencia necesarias para el puesto
@@ -326,14 +345,11 @@ export function JobFormTabs({ job }: JobFormTabsProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="benefits">Beneficios</Label>
-                <Textarea
-                  id="benefits"
-                  name="benefits"
-                  placeholder="- Trabajo remoto&#10;- Horario flexible&#10;- Seguro de salud"
-                  rows={6}
-                  value={formState.benefits}
-                  onChange={(e) => updateField("benefits", e.target.value)}
-                  className="resize-none"
+                <RichTextEditor
+                  content={formState.benefits}
+                  onChange={(html) => updateField("benefits", html)}
+                  placeholder="Destaca los beneficios que ofrece tu empresa..."
+                  className="min-h-[200px]"
                 />
                 <p className="text-xs text-muted-foreground">Destaca los beneficios que ofrece tu empresa</p>
               </div>
