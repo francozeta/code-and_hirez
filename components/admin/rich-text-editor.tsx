@@ -53,7 +53,6 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     },
   })
 
-  // Update editor content when prop changes (for form reset, etc.)
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content)
@@ -65,11 +64,26 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
   }
 
   const handleAddLink = () => {
+    const { from, to } = editor.state.selection
+    const hasSelection = from !== to
+
+    // If there's selected text, get it to show in the dialog
+    const selectedText = hasSelection ? editor.state.doc.textBetween(from, to) : ""
+
     setLinkDialogOpen(true)
   }
 
   const handleLinkSubmit = (url: string) => {
-    editor.chain().focus().setLink({ href: url }).run()
+    const { from, to } = editor.state.selection
+    const hasSelection = from !== to
+
+    if (hasSelection) {
+      // If text is selected, wrap it with the link
+      editor.chain().focus().setLink({ href: url }).run()
+    } else {
+      // If no text is selected, insert the URL as text with the link
+      editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run()
+    }
   }
 
   return (

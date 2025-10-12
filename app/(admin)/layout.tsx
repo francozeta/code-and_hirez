@@ -37,7 +37,9 @@ export default async function AdminLayout({
     <html lang="es">
       <body className={`${geistSans.className} ${playfair.variable} antialiased`}>
         {user ? <AdminHeader /> : <SiteHeader />}
-        <main className={user ? "min-h-screen bg-secondary/30 pt-20 px-4 md:px-6 lg:px-8" : "min-h-screen"}>
+        <main
+          className={user ? "min-h-screen bg-secondary/30 pt-20 pb-20 md:pb-6 px-4 md:px-6 lg:px-8" : "min-h-screen"}
+        >
           {children}
         </main>
         <Toaster position="bottom-right" />

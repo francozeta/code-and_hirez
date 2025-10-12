@@ -103,8 +103,23 @@ export default async function JobPage({ params }: JobPageProps) {
                     />
                   </CardContent>
                 </Card>
+
+                {job.benefits && (
+                  <Card className="border-2">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="font-serif text-xl md:text-2xl">Beneficios</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div
+                        className="prose prose-sm max-w-none text-sm md:text-base text-foreground/90 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.benefits) }}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
+              {/* Application Form - Right column (desktop) */}
               <div className="hidden lg:block">
                 <div className="sticky top-6">
                   <Card className="border-2 shadow-lg">
