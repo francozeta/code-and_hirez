@@ -35,7 +35,9 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-primary underline underline-offset-2",
+          class: "text-primary underline underline-offset-2 cursor-pointer",
+          rel: "noopener noreferrer",
+          target: "_blank",
         },
       }),
       Placeholder.configure({
@@ -46,6 +48,17 @@ export function RichTextEditor({ content, onChange, placeholder, className }: Ri
     editorProps: {
       attributes: {
         class: "prose prose-sm max-w-none focus:outline-none min-h-[200px] px-4 py-3 text-sm leading-relaxed",
+      },
+      handleClick(view, pos, event) {
+        const attrs = view.state.doc
+          .resolve(pos)
+          .marks()
+          .find((mark) => mark.type.name === "link")?.attrs
+        if (attrs?.href && (event.ctrlKey || event.metaKey)) {
+          window.open(attrs.href, "_blank", "noopener,noreferrer")
+          return true
+        }
+        return false
       },
     },
     onUpdate: ({ editor }) => {

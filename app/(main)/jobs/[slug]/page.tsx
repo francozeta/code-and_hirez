@@ -6,6 +6,8 @@ import { ApplicationWizard } from "@/components/application-wizard"
 import { createServerClient } from "@/lib/supabase/server"
 import type { Job } from "@/types/db"
 import { sanitizeHtml } from "@/lib/sanitize-html"
+import type { Metadata } from "next"
+import { stripHtml } from "@/lib/strip-html"
 
 interface JobPageProps {
   params: Promise<{ slug: string }>
@@ -21,6 +23,36 @@ async function getJob(slug: string): Promise<Job | null> {
   }
 
   return job
+}
+
+export async function generateMetadata({ params }: JobPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const job = await getJob(slug)
+
+  if (!job) {
+    return {
+      title: "Vacante no encontrada",
+      description: "La vacante que buscas no está disponible.",
+    }
+  }
+
+  // Strip HTML tags for clean meta description
+  const description = stripHtml(job.description).slice(0, 160)
+
+  return {
+    title: `${job.title} - ${job.company} | Code&Hirez`,
+    description: description,
+    openGraph: {
+      title: `${job.title} - ${job.company}`,
+      description: description,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${job.title} - ${job.company}`,
+      description: description,
+    },
+  }
 }
 
 export default async function JobPage({ params }: JobPageProps) {

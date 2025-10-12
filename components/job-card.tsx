@@ -3,6 +3,7 @@ import { Briefcase, MapPin, Clock } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { Job } from "@/types/db"
+import { stripHtml } from "@/lib/strip-html"
 
 interface JobCardProps {
   job: Job
@@ -30,7 +31,7 @@ export function JobCard({ job }: JobCardProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{job.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{stripHtml(job.description)}</p>
 
           <div className="flex flex-wrap gap-2">
             <Badge variant="outline" className="gap-1.5 text-xs px-2.5 py-1">
