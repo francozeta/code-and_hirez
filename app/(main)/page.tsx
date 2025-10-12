@@ -2,6 +2,14 @@ import Link from "next/link"
 import { ArrowRight, Briefcase, Heart, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import type { Metadata } from "next"
+import { createMetadata } from "@/lib/metadata"
+
+export const metadata: Metadata = createMetadata({
+  title: "Encuentra tu próximo empleo en tech",
+  description: "Portal profesional de vacantes tech. Conectamos talento con las mejores oportunidades en tecnología.",
+  path: "/",
+})
 
 export default function HomePage() {
   return (

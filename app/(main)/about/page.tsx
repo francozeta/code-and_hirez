@@ -3,6 +3,15 @@ import Link from "next/link"
 import { Linkedin, MapPin, ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import type { Metadata } from "next"
+import { createMetadata } from "@/lib/metadata"
+
+export const metadata: Metadata = createMetadata({
+  title: "Sobre mí - Alessandra Arrunategui",
+  description:
+    "Especialista en reclutamiento IT full-cycle con más de 6 años de experiencia conectando talento excepcional con oportunidades transformadoras.",
+  path: "/about",
+})
 
 export default function AboutPage() {
   const experiences = [
@@ -131,7 +140,10 @@ export default function AboutPage() {
                 </div>
 
                 <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-2xl text-pretty">
-                 Especialista en reclutamiento IT full-cycle con enfoque estratégico y orientado a resultados. Experiencia optimizando procesos de selección y reduciendo tiempos de contratación sin perder calidad. Genero relaciones sólidas con hiring managers y stakeholders para asegurar contrataciones alineadas a la visión del negocio.
+                  Especialista en reclutamiento IT full-cycle con enfoque estratégico y orientado a resultados.
+                  Experiencia optimizando procesos de selección y reduciendo tiempos de contratación sin perder calidad.
+                  Genero relaciones sólidas con hiring managers y stakeholders para asegurar contrataciones alineadas a
+                  la visión del negocio.
                 </p>
 
                 {/* LinkedIn CTA */}
