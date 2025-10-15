@@ -34,7 +34,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser()
 
   return (
-    <html lang="es">
+    <html lang="es_PE">
       <body className={`${geistSans.className} ${playfair.variable} antialiased`}>
         {user ? <AdminHeader /> : <SiteHeader />}
         <main className={user ? "min-h-screen bg-secondary/30 pt-14 pb-20 md:pb-6" : "min-h-screen"}>{children}</main>
