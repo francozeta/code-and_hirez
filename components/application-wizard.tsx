@@ -1,11 +1,9 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useCallback, memo, useRef } from "react"
+import { useState, useCallback, memo } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useController, type Control } from "react-hook-form"
 import { Loader2, Upload, ChevronRight, ChevronLeft, User, Mail, FileText, Send, HelpCircle } from "lucide-react"
 import Flag from "react-world-flags"
 import { Button } from "@/components/ui/button"
@@ -38,6 +36,10 @@ interface ApplicationWizardProps {
 
 type Step = 1 | 2 | 3 | 4
 
+interface ExtendedFormData extends ApplicationFormData {
+  customAnswers?: Record<string, string | number | boolean>
+}
+
 const countryCodes = [
   { code: "US", dialCode: "+1", name: "Estados Unidos" },
   { code: "CA", dialCode: "+1", name: "Canadá" },
@@ -56,14 +58,22 @@ const countryCodes = [
   { code: "UY", dialCode: "+598", name: "Uruguay" },
 ]
 
-interface QuestionInputProps {
+/** ---------- Question field, conectado con RHF vía useController ---------- */
+interface QuestionFieldProps {
+  control: Control<ExtendedFormData>
   question: Question
-  defaultValue?: string | number | boolean
 }
 
-const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
-  const radioValueRef = useRef<string>(defaultValue === undefined ? "" : String(defaultValue))
+const QuestionField = memo(({ control, question }: QuestionFieldProps) => {
+  const name = `customAnswers.${question.id}` as const
+  const {
+    field: { value, onChange },
+  } = useController({
+    control,
+    name,
+    defaultValue:
+      (question.type === "number" ? ("" as unknown as number) : question.type === "yes_no" ? ("" as unknown as boolean) : "") as any,
+  })
 
   return (
     <div className="space-y-2" data-question-id={question.id}>
@@ -74,9 +84,9 @@ const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
 
       {question.type === "short_text" && (
         <Input
-          ref={inputRef as React.RefObject<HTMLInputElement>}
           placeholder="Tu respuesta"
-          defaultValue={(defaultValue as string) || ""}
+          value={(value as string) ?? ""}
+          onChange={(e) => onChange(e.target.value)}
           className="h-10"
           data-question-type="short_text"
         />
@@ -84,9 +94,9 @@ const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
 
       {question.type === "long_text" && (
         <Textarea
-          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
           placeholder="Tu respuesta"
-          defaultValue={(defaultValue as string) || ""}
+          value={(value as string) ?? ""}
+          onChange={(e) => onChange(e.target.value)}
           rows={4}
           className="resize-none"
           data-question-type="long_text"
@@ -95,10 +105,13 @@ const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
 
       {question.type === "number" && (
         <Input
-          ref={inputRef as React.RefObject<HTMLInputElement>}
           type="number"
           placeholder="0"
-          defaultValue={(defaultValue as number) || ""}
+          value={value === "" || value === undefined || value === null ? "" : (value as number)}
+          onChange={(e) => {
+            const v = e.target.value
+            onChange(v === "" ? "" : Number(v))
+          }}
           className="h-10"
           data-question-type="number"
         />
@@ -106,10 +119,8 @@ const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
 
       {question.type === "yes_no" && (
         <RadioGroup
-          defaultValue={radioValueRef.current}
-          onValueChange={(val) => {
-            radioValueRef.current = val
-          }}
+          value={value === true ? "true" : value === false ? "false" : ""}
+          onValueChange={(val) => onChange(val === "true")}
           data-question-type="yes_no"
         >
           <div className="flex items-center space-x-2">
@@ -129,9 +140,9 @@ const QuestionInput = memo(({ question, defaultValue }: QuestionInputProps) => {
     </div>
   )
 })
+QuestionField.displayName = "QuestionField"
 
-QuestionInput.displayName = "QuestionInput"
-
+/** ---------- Wizard ---------- */
 export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }: ApplicationWizardProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>(1)
@@ -140,54 +151,28 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
   const [open, setOpen] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState("PE")
 
-  const customAnswersRef = useRef<Record<string, string | number | boolean>>({})
-
-  const form = useForm<ApplicationFormData>({
+  const form = useForm<ExtendedFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       full_name: "",
       email: "",
       phone: "",
       linkedin_url: "",
+      customAnswers: {}, // importante: inicializado
     },
+    // Asegura que los campos no se “desregistren” al cambiar de tab
+    shouldUnregister: false,
+    mode: "onChange",
   })
 
   const totalSteps = jobQuestions.length > 0 ? 4 : 3
   const progress = (currentStep / totalSteps) * 100
 
   const getCustomAnswers = useCallback((): Record<string, string | number | boolean> => {
-    const answers: Record<string, string | number | boolean> = {}
+    return form.getValues("customAnswers") || {}
+  }, [form])
 
-    jobQuestions.forEach((question) => {
-      const container = document.querySelector(`[data-question-id="${question.id}"]`)
-      if (!container) return
-
-      const questionType = container.querySelector("[data-question-type]")?.getAttribute("data-question-type")
-
-      if (questionType === "short_text" || questionType === "long_text") {
-        const input = container.querySelector("input, textarea") as HTMLInputElement | HTMLTextAreaElement
-        if (input) {
-          answers[question.id] = input.value
-        }
-      } else if (questionType === "number") {
-        const input = container.querySelector("input") as HTMLInputElement
-        if (input && input.value) {
-          answers[question.id] = Number(input.value)
-        }
-      } else if (questionType === "yes_no") {
-        const radioGroup = container.querySelector('[role="radiogroup"]')
-        const checkedRadio = radioGroup?.querySelector('button[data-state="checked"]')
-        if (checkedRadio) {
-          const value = checkedRadio.getAttribute("value")
-          answers[question.id] = value === "true"
-        }
-      }
-    })
-
-    return answers
-  }, [jobQuestions])
-
-  const onSubmit = async (data: ApplicationFormData) => {
+  const onSubmit = async (data: ExtendedFormData) => {
     if (!data.cv) {
       toast.error("Por favor selecciona un archivo CV")
       return
@@ -233,7 +218,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
       const answers: Answer[] = jobQuestions.map((question) => ({
         question_id: question.id,
         question_label: question.label,
-        answer: customAnswers[question.id] || "",
+        answer: customAnswers[question.id] ?? "",
       }))
 
       const result = await submitApplication({
@@ -488,11 +473,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
               </div>
 
               {jobQuestions.map((question) => (
-                <QuestionInput
-                  key={question.id}
-                  question={question}
-                  defaultValue={customAnswersRef.current[question.id]}
-                />
+                <QuestionField key={question.id} control={form.control} question={question} />
               ))}
             </div>
           )}
