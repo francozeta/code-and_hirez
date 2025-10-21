@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
     .limit(5)
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="space-y-8">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2 text-balance">Dashboard</h1>

@@ -38,7 +38,7 @@ async function ApplicationsContent() {
 
 export default function ApplicationsPage() {
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">Postulaciones</h1>

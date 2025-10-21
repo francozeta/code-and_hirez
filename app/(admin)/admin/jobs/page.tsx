@@ -25,12 +25,28 @@ async function JobsContent() {
     return <div className="text-center py-12 text-destructive">Error al cargar las vacantes</div>
   }
 
-  return <JobsTable jobs={jobs || []} />
+  const jobsWithApplicationCount = await Promise.all(
+    (jobs || []).map(async (job) => {
+      const { count, error: countError } = await supabase
+        .from("applications")
+        .select("*", { count: "exact", head: true })
+        .eq("job_id", job.id)
+
+      if (countError) {
+        console.error(`Error counting applications for job ${job.id}:`, countError)
+        return { ...job, application_count: 0 }
+      }
+
+      return { ...job, application_count: count || 0 }
+    }),
+  )
+
+  return <JobsTable jobs={jobsWithApplicationCount} />
 }
 
 export default function JobsPage() {
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8">
+    <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">Vacantes</h1>
