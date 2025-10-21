@@ -8,6 +8,7 @@ import type { Job } from "@/types/db"
 import { sanitizeHtml } from "@/lib/sanitize-html"
 import type { Metadata } from "next"
 import { stripHtml } from "@/lib/strip-html"
+import { ShareJobButton } from "@/components/share-job-button"
 
 interface JobPageProps {
   params: Promise<{ slug: string }>
@@ -36,7 +37,6 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
     }
   }
 
-  // Strip HTML tags for clean meta description
   const description = stripHtml(job.description).slice(0, 160)
 
   return {
@@ -80,7 +80,7 @@ export default async function JobPage({ params }: JobPageProps) {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 items-center">
               <Badge variant="outline" className="gap-1.5 text-xs md:text-sm px-3 py-1.5">
                 <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
                 <span>{job.location}</span>
@@ -101,6 +101,7 @@ export default async function JobPage({ params }: JobPageProps) {
                   </span>
                 </Badge>
               )}
+              <ShareJobButton title={job.title} company={job.company} />
             </div>
           </div>
         </div>

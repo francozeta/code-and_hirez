@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, memo } from "react"
+import { useState, useCallback, memo, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useController, type Control } from "react-hook-form"
@@ -25,6 +25,7 @@ import {
 import { applicationSchema, type ApplicationFormData } from "@/lib/validations/application"
 import { submitApplication } from "@/app/actions/submit-application"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getCountries, getDialCode } from "@/lib/country-data"
 import { toast } from "sonner"
 import type { Question, Answer } from "@/types/db"
 
@@ -40,24 +41,6 @@ interface ExtendedFormData extends ApplicationFormData {
   customAnswers?: Record<string, string | number | boolean>
 }
 
-const countryCodes = [
-  { code: "US", dialCode: "+1", name: "Estados Unidos" },
-  { code: "CA", dialCode: "+1", name: "Canadá" },
-  { code: "MX", dialCode: "+52", name: "México" },
-  { code: "PE", dialCode: "+51", name: "Perú" },
-  { code: "AR", dialCode: "+54", name: "Argentina" },
-  { code: "CL", dialCode: "+56", name: "Chile" },
-  { code: "CO", dialCode: "+57", name: "Colombia" },
-  { code: "VE", dialCode: "+58", name: "Venezuela" },
-  { code: "ES", dialCode: "+34", name: "España" },
-  { code: "GB", dialCode: "+44", name: "Reino Unido" },
-  { code: "BR", dialCode: "+55", name: "Brasil" },
-  { code: "EC", dialCode: "+593", name: "Ecuador" },
-  { code: "BO", dialCode: "+591", name: "Bolivia" },
-  { code: "PY", dialCode: "+595", name: "Paraguay" },
-  { code: "UY", dialCode: "+598", name: "Uruguay" },
-]
-
 /** ---------- Question field, conectado con RHF vía useController ---------- */
 interface QuestionFieldProps {
   control: Control<ExtendedFormData>
@@ -71,8 +54,11 @@ const QuestionField = memo(({ control, question }: QuestionFieldProps) => {
   } = useController({
     control,
     name,
-    defaultValue:
-      (question.type === "number" ? ("" as unknown as number) : question.type === "yes_no" ? ("" as unknown as boolean) : "") as any,
+    defaultValue: (question.type === "number"
+      ? ("" as unknown as number)
+      : question.type === "yes_no"
+        ? ("" as unknown as boolean)
+        : "") as any,
   })
 
   return (
@@ -151,6 +137,8 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
   const [open, setOpen] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState("PE")
 
+  const countries = useMemo(() => getCountries(), [])
+
   const form = useForm<ExtendedFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
@@ -158,9 +146,8 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
       email: "",
       phone: "",
       linkedin_url: "",
-      customAnswers: {}, // importante: inicializado
+      customAnswers: {},
     },
-    // Asegura que los campos no se “desregistren” al cambiar de tab
     shouldUnregister: false,
     mode: "onChange",
   })
@@ -203,8 +190,7 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
         data: { publicUrl },
       } = supabase.storage.from("cvs").getPublicUrl(filePath)
 
-      const selectedCountryData = countryCodes.find((c) => c.code === selectedCountry)
-      const dialCode = selectedCountryData?.dialCode || "+51"
+      const dialCode = getDialCode(selectedCountry)
 
       const linkedinUrl = data.linkedin_url
         ? data.linkedin_url.startsWith("http")
@@ -401,8 +387,8 @@ export function ApplicationWizard({ jobId, jobQuestions = [], isMobile = false }
                           <SelectTrigger className="w-[140px] h-10">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            {countryCodes.map((country) => (
+                          <SelectContent className="max-h-[300px]">
+                            {countries.map((country) => (
                               <SelectItem key={country.code} value={country.code}>
                                 <span className="flex items-center gap-2">
                                   <Flag code={country.code} className="w-5 h-4 object-cover rounded-[2px]" />

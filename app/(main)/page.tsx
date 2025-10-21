@@ -49,35 +49,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section - Clean and minimal */}
-      <section className="border-y border-border bg-card">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-serif text-3xl font-bold">6+ años</h3>
-              <p className="text-sm text-muted-foreground">de experiencia en reclutamiento IT</p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 mb-3">
-                <Target className="h-6 w-6 text-accent" />
-              </div>
-              <h3 className="font-serif text-3xl font-bold">Full-cycle</h3>
-              <p className="text-sm text-muted-foreground">Proceso completo de selección</p>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-serif text-3xl font-bold">Rápido</h3>
-              <p className="text-sm text-muted-foreground">Respuestas claras y oportunas</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Features Section - Vercel cards style */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-4">
@@ -125,80 +96,6 @@ export default function HomePage() {
                   </CardDescription>
                 </CardHeader>
               </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Process Section - Fixed white background blending issue */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-semibold">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Nuestro proceso</span>
-                  </div>
-                  <h2 className="font-serif text-4xl md:text-5xl font-bold text-balance">
-                    Un camino claro hacia tu próxima oportunidad
-                  </h2>
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    Desde el primer contacto hasta tu incorporación, cada paso está diseñado para brindarte la mejor
-                    experiencia y asegurar el match perfecto.
-                  </p>
-                </div>
-                <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="text-base text-foreground font-semibold block">Descubrimiento y Entrevista</span>
-                      <span className="text-sm text-muted-foreground">
-                        Conocemos tu perfil, experiencia y aspiraciones profesionales
-                      </span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="text-base text-foreground font-semibold block">Coaching y Preparación</span>
-                      <span className="text-sm text-muted-foreground">
-                        Te preparamos para destacar en cada etapa del proceso
-                      </span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="text-base text-foreground font-semibold block">Presentación y Seguimiento</span>
-                      <span className="text-sm text-muted-foreground">
-                        Conectamos tu talento con las mejores oportunidades
-                      </span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="text-base text-foreground font-semibold block">Cierre y Post-contrato</span>
-                      <span className="text-sm text-muted-foreground">
-                        Te acompañamos hasta tu incorporación y más allá
-                      </span>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div className="relative">
-                <div className="relative w-full aspect-square flex items-center justify-center">
-                  <Image
-                    src="/assets-process.png"
-                    alt="Proceso de reclutamiento"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -267,6 +164,7 @@ export default function HomePage() {
                   aquellas donde tu experiencia y habilidades sean más relevantes para aumentar tus posibilidades.
                 </AccordionContent>
               </AccordionItem>
+              
             </Accordion>
           </div>
         </div>
